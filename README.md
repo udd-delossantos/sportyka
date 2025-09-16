@@ -11,4 +11,5 @@ This project supports three user roles: **Admin, Staff, and Customer**.
 2. Install dependencies:
    ```bash
    composer install
-   npm install && npm run build
+   php artisan migrate
+   php artisan db:seed
