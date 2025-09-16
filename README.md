@@ -11,5 +11,9 @@ This project supports three user roles: **Admin, Staff, and Customer**.
 2. Install dependencies:
    ```bash
    composer install
+3. Migrate all tables
+   ```bash
    php artisan migrate
-   php artisan db:seed
+4. Seed the database (creates 3 users (admin, staff, and customer))
+   ```bash
+   php artisan db:seed 
