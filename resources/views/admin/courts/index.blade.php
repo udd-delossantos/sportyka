@@ -1,5 +1,8 @@
 @extends('layouts.admin.app')
 
+@section('title', 'Sporty Ka')
+
+
 @section('content')
 <div class="container-fluid">
     <div class="card shadow mb-4">

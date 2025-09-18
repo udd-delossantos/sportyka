@@ -4,6 +4,18 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><strong>All Queues</strong></h4>
+            <!-- Export buttons -->
+            <div>
+                <button id="exportCsv" class="btn btn-info btn-sm">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+                <button id="exportExcel" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button id="printTable" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
         </div>
         <div class="card-body">
 
@@ -57,22 +69,48 @@
 @endsection
 
 @push('styles')
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
 @endpush
 
 @push('scripts')
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- DataTables JS -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-
 <script>
 $(document).ready(function() {
-    $('#queuesTable').DataTable({
+    var table = $('#queuesTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
+        dom: 
+            // top (search removed since you already have buttons outside)
+            '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
+            // bottom with pagination aligned right
+            '<"bottom d-flex justify-content-between align-items-center"ip>',
+        buttons: [
+            {
+                extend: 'csvHtml5',
+                title: 'All Queues',
+                exportOptions: { columns: ':visible' }
+            },
+            {
+                extend: 'excelHtml5',
+                title: 'All Queues',
+                exportOptions: { columns: ':visible' }
+            },
+            {
+                extend: 'print',
+                title: 'All Queues',
+                exportOptions: { columns: ':visible' }
+            }
+        ]
+    });
+
+    // External buttons
+    $('#exportCsv').on('click', function() {
+        table.button(0).trigger();
+    });
+    $('#exportExcel').on('click', function() {
+        table.button(1).trigger();
+    });
+    $('#printTable').on('click', function() {
+        table.button(2).trigger();
     });
 });
 </script>

@@ -10,12 +10,52 @@ use Carbon\Carbon;
 
 class DailyOperationController extends Controller
 {
-    public function index()
-    {
-        $operations = DailyOperation::orderByDesc('date')->get();
-        $active = DailyOperation::where('status', 'open')->first();
-        return view('admin.daily_operations.index', compact('operations', 'active'));
+   public function index()
+{
+    $operations = DailyOperation::orderBy('date', 'desc')->get();
+
+    $active = DailyOperation::where('status', 'open')->first();
+
+    
+
+    $operationPayments = [];
+
+    foreach ($operations as $operation) {
+        $overallCash = 0;
+        $overallGcash = 0;
+
+        $courts = \App\Models\Court::all();
+        foreach ($courts as $court) {
+            // Sessions for this court in this operation day
+            $sessions = \App\Models\GameSession::where('court_id', $court->id)  
+                ->whereDate('created_at', $operation->date)
+                ->get();
+
+            $queues = \App\Models\Queue::where('court_id', $court->id)  
+                ->whereDate('created_at', $operation->date)
+                ->get();
+
+            // Payments for this court today
+            $payments = \App\Models\Payment::whereIn('game_session_id', $sessions->pluck('id'))->get();
+
+            $cashTotal  = $payments->where('payment_method', 'cash')->sum('amount');
+            $gcashTotal = $payments->where('payment_method', 'gcash')->sum('amount');
+
+            // Queue payments
+            $queueCashTotal  = $queues->whereNull('transaction_no')->sum('amount');
+            $queueGcashTotal = $queues->whereNotNull('transaction_no')->sum('amount');
+
+            $overallCash  += ($cashTotal + $queueCashTotal);
+            $overallGcash += ($gcashTotal + $queueGcashTotal);
+        }
+
+        $operationPayments[$operation->id] = $overallCash + $overallGcash;
     }
+
+    return view('admin.daily_operations.index', compact('operations', 'active', 'operationPayments'));
+}
+
+
 
     public function open(Request $request)
     {
