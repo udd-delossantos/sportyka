@@ -1,6 +1,4 @@
-@extends('layouts.staff.app')
-
-@section('content')
+@extends('layouts.staff.app') @section('content')
 <div class="container-fluid">
     <div class="px-0">
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
@@ -24,32 +22,34 @@
                 </div>
             </div>
         </div>
-
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h4 class="mb-0"><strong>Bookings List</strong></h4>
             </div>
             <div class="card-body">
-                @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-                @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div> @endif
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="bookingsTable">
-                        <thead>
-                            <tr>
-                                <th>Customer</th>
-                                <th>Court</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Duration</th>
-                                <th>Amount</th>
-                                <th>Transaction No</th>
-                                <th>Approved By</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($bookings as $booking)
+                @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}@endif @if(session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="bookingsTable">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Court</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Duration</th>
+                                    <th>Amount</th>
+                                    <th>Transaction No</th>
+                                    <th>Approved By</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($bookings as $booking)
                                 <tr>
                                     <td>{{ $booking->user->name }}</td>
                                     <td>{{ $booking->court->name }}</td>
@@ -60,107 +60,44 @@
                                     <td>{{ $booking->transaction_no ?? '—' }}</td>
                                     <td>{{ $booking->staff->name ?? '—' }}</td>
                                     <td class="text-light text-center">
-                                        <span class="badge bg-{{ 
-                                            $booking->status === 'pending' ? 'warning' : 
-                                            ($booking->status === 'confirmed' ? 'success' : 
-                                            ($booking->status === 'completed' ? 'info' : 'danger')) 
-                                            }}">
+                                        <span class="badge bg-{{ $booking->status === 'pending' ? 'warning' : ($booking->status === 'confirmed' ? 'success' : ($booking->status === 'completed' ? 'info' : 'danger')) }}">
                                             {{ ucfirst($booking->status) }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        @if($booking->status === 'confirmed')
-                                            <a href="{{ route('staff.bookings.edit', $booking->id) }}" 
-                                                class="btn btn-sm btn-warning">
-                                                Move
-                                            </a>
-                                        @else
-                                            —
-                                        @endif
-                                    </td>
+                                    <td class="text-center">@if($booking->status === 'confirmed') <a href="{{ route('staff.bookings.edit', $booking->id) }}" class="btn btn-sm btn-warning"> Move </a> @else — @endif</td>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><strong>Calendar</strong></h4>
+                </div>
+                <div class="card-body">
+                    <div id="calendar"></div>
                 </div>
             </div>
         </div>
-
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><strong>Calendar</strong></h4>
-            </div>
-            <div class="card-body">
-                <div id="calendar"></div>
-            </div>
-        </div>
+        @endsection @push('styles')
+        <style>
+            /* Day names (Sun, Mon, etc.) */
+            .fc .fc-col-header-cell-cushion {
+                color: #858796 !important;
+                font-weight: bold;
+                text-decoration: none; /* removes underline */
+            } /* Date numbers (1, 2, 3...) */
+            .fc .fc-daygrid-day-number {
+                color: #858796 !important;
+                text-decoration: none;
+            }
+        </style>
+        @endpush @push('scripts')
+        <script>
+            $(document).ready(function() { $('#bookingsTable').DataTable({ pageLength: 10, lengthMenu: [5, 10, 25, 50, 100], layout: { topStart: { buttons: ['print'] } } }); }); document.addEventListener('DOMContentLoaded', function () { const calendarEl = document.getElementById('calendar'); if (calendarEl) { const calendar = new FullCalendar.Calendar(calendarEl, { themeSystem: 'bootstrap', initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek' }, events: @json($events), height: "auto" }); calendar.render(); } else { console.error("Calendar div not found."); } });
+        </script>
+        @endpush
     </div>
 </div>
-@endsection
-
-@push('styles')
-<!-- DataTables Buttons CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-
-<style>
-/* Day names (Sun, Mon, etc.) */
-.fc .fc-col-header-cell-cushion {
-  color: #858796 !important;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-/* Date numbers (1, 2, 3...) */
-.fc .fc-daygrid-day-number {
-  color: #858796 !important;
-  text-decoration: none;
-}
-</style>
-@endpush
-
-@push('scripts')
-<!-- DataTables Buttons JS + dependencies -->
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-
-<script>
-    $(document).ready(function() {
-        $('#bookingsTable').DataTable({
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50, 100],
-            dom: 'Bfrtip', // Add this for buttons
-            buttons: [
-                {
-                    extend: 'print',
-                    text: '<i class="fas fa-print"></i> Print',
-                    className: 'btn btn-primary btn-sm',
-                    exportOptions: {
-                        columns: ':not(:last-child)' // Exclude action column
-                    }
-                }
-            ]
-        });
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const calendarEl = document.getElementById('calendar');
-
-        if (calendarEl) {
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                themeSystem: 'bootstrap',
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-                },
-                events: @json($events),
-                height: "auto"
-            });
-            calendar.render();
-        } else {
-            console.error("Calendar div not found.");
-        }
-    });
-</script>
-@endpush
