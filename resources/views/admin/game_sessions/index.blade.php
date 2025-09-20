@@ -1,6 +1,30 @@
 @extends('layouts.admin.app')
 @section('content')
 <div class="container-fluid">
+     <div class="px-0">
+        <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
+            <h2 class="mb-0 text-primary"><strong>Sessions</strong></h2>
+        <div class="d-flex gap-3">
+            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Courts Available</h6>
+                <h4 class="mb-0 text-primary">{{ $availCourtsCount }}</h4>
+            </div>
+            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Ongoing Sessions</h6>
+                <h4 class="mb-0 text-success">{{ $ongoingSessions }}</h4>
+            </div>
+            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Completed Sessions</h6>
+                <h4 class="mb-0 text-info">{{ $completedSessions }}</h4>
+            </div>
+            <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Pending Sessions</h6>
+                <h4 class="mb-0 text-danger">{{ $pendingSessions }}</h4>
+            </div>
+        </div>
+        </div>
+
+    </div>
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><strong>All Sessions</strong></h4>

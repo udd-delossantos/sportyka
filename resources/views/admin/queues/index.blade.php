@@ -1,6 +1,31 @@
 @extends('layouts.admin.app')
 @section('content')
 <div class="container-fluid">
+    <div class="px-0">
+        <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
+            <h2 class="mb-0 text-primary"><strong>Queues</strong></h2>
+        <div class="d-flex gap-3">
+            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-warning" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Waiting</h6>
+                <h4 class="mb-0 text-warning">{{ $waitingCount }}</h4>
+            </div>
+            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Called</h6>
+                <h4 class="mb-0 text-success">{{ $calledCount }}</h4>
+            </div>
+            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Completed</h6>
+                <h4 class="mb-0 text-info">{{ $completedCount }}</h4>
+            </div>
+            <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Skipped</h6>
+                <h4 class="mb-0 text-danger">{{ $skippedCount }}</h4>
+            </div>
+        </div>
+</div>
+
+    </div>
+
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><strong>All Queues</strong></h4>

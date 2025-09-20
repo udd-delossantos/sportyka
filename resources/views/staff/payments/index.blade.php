@@ -2,7 +2,7 @@
 @section('content')
 <div class="container-fluid">
 
-<div class="px-0">
+    <div class="px-0">
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
             <h2 class="mb-0 text-primary"><strong>Payments</strong></h2>
         <div class="d-flex gap-3">

@@ -20,7 +20,7 @@ class PaymentController extends Controller
 
         if (!$active) {
             // create empty paginators for each dataset
-            $payments = new LengthAwarePaginator([], 0, 5);
+            $payments = collect();
             $totalCash = 0;
             $totalGCash = 0;
             $totalCollected = 0;

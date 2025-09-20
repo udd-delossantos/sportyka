@@ -3,7 +3,7 @@
 <div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><strong>Manage Users</strong></h4>
+            <h4 class="mb-0"><strong>All Users</strong></h4>
             <a href="{{ route('admin.users.create') }}" class="btn btn-primary"> Add User</a>
         </div>
         <div class="card-body">

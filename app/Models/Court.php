@@ -15,4 +15,7 @@ class Court extends Model
         'hourly_rate',
         'status',
     ];
+
+    
 }
+

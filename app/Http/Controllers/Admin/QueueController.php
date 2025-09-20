@@ -15,16 +15,38 @@ class QueueController extends Controller
 
         if (!$active) {
             // create empty paginators for each dataset
-            $queues = new LengthAwarePaginator([], 0, 2);
+            $queues = collect();
+            $waitingCount = 0;
+            $calledCount = 0;
+            $completedCount = 0;
+            $skippedCount = 0;
 
         } else {
             $queues = Queue::with(['court', 'staff'])
             ->where('daily_operation_id', $active->id)
             ->latest()
             ->get(); // No get()
-            
+
+             $waitingCount = Queue::where('status', 'waiting')
+            ->where('daily_operation_id', $active->id)
+            ->count();
+
+
+            $calledCount = Queue::where('status', 'called')
+            ->where('daily_operation_id', $active->id)
+            ->count();
+
+
+            $completedCount = Queue::where('status', 'completed')
+            ->where('daily_operation_id', $active->id)
+            ->count();
+
+            $skippedCount = Queue::where('status', 'skipped')
+            ->where('daily_operation_id', $active->id)
+            ->count();
+                
         }
 
-    return view('admin.queues.index', compact('queues'));
+    return view('admin.queues.index', compact('queues','waitingCount','calledCount','completedCount','skippedCount'));
     }
 }
