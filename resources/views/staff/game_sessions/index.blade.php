@@ -102,7 +102,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0"><strong>Today's Bookings</strong></h6>
             <!-- Court Filter Dropdown -->
-            <select id="bookingCourtFilter" class="form-select form-select-sm w-auto">
+            <select id="bookingCourtFilter" class="form-control form-control-sm w-auto">
                 <option value="">All Courts</option>
                 @foreach($courts as $court)
                     <option value="{{ $court->name }}">{{ $court->name }}</option>
@@ -185,7 +185,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="mb-0"><strong>Customers in Queue</strong></h6>
             <!-- Responsive Sort Dropdown -->
-            <select id="courtSort" class="form-select form-select-sm w-auto">
+            <select id="courtSort" class="form-control form-control-sm w-auto">
                 <option value="all">All Courts</option>
                 @foreach($courts as $court)
                 <option value="{{ $court->name }}">{{ $court->name }}</option>

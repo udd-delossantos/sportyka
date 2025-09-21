@@ -4,10 +4,11 @@
     <div class="px-0">
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
             <h2 class="mb-0 text-primary"><strong>Dashboard</strong></h2>
-            <div class="col-md-3 px-0">
-                <label for="monthFilter">Select Month:</label>
-                <input type="month" id="monthFilter" class="form-control" value="{{ $month }}" />
-            </div>
+           <div class="col-md-3 px-0">
+    <input type="month" id="monthFilter" class="form-control" 
+        value="{{ $month }}" placeholder="Select Month" />
+</div>
+
             <!-- Print Button -->
             <button id="printReport" class="btn btn-sm btn-primary ms-2">
                 <i class="fas fa-print"></i> Print Report

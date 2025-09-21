@@ -14,63 +14,63 @@ use Carbon\Carbon;
 
 class QueueController extends Controller
 {
-    public function index()
+   public function index()
 {
     $active = DailyOperation::where('status', 'open')->first();
+    $courts = Court::all();
 
-    if (!$active) {
-        $queues = collect();
-        $waitingCount = 0;
-        $calledCount = 0;
-        $completedCount = 0;
-        $skippedCount = 0;
+    $waitingQueues = collect();
+    $processedQueues = collect();
 
-    } else {
-
+    if ($active) {
         $now = Carbon::now();
 
+        // Expire past waiting queues
         $expiredQueues = Queue::where('daily_operation_id', $active->id)
-        ->where('status', 'waiting')
-        ->whereRaw("STR_TO_DATE(CONCAT(CURDATE(), ' ', end_time), '%Y-%m-%d %H:%i:%s') < ?", [$now])
-        ->get();
+            ->where('status', 'waiting')
+            ->whereRaw("STR_TO_DATE(CONCAT(CURDATE(), ' ', end_time), '%Y-%m-%d %H:%i:%s') < ?", [$now])
+            ->get();
 
         foreach ($expiredQueues as $expired) {
             $expired->status = 'skipped';
             $expired->queue_number = 0;
             $expired->save();
-
-            
             $this->renumberQueues($expired->court_id, $active->id);
         }
 
+        // Waiting customers
+        $waitingQueues = Queue::with(['court', 'staff'])
+            ->where('daily_operation_id', $active->id)
+            ->where('status', 'waiting')
+            ->orderBy('queue_number')
+            ->get();
 
-        $queues = Queue::with(['court', 'staff'])
-        ->where('daily_operation_id', $active->id)
-        ->orderBy('queue_number')
-        ->get();
+        // Called + Skipped queues
+        $processedQueues = Queue::with(['court', 'staff'])
+            ->where('daily_operation_id', $active->id)
+            ->whereIn('status', ['called', 'skipped'])
+            ->orderByDesc('updated_at')
+            ->get();
 
-        $waitingCount = Queue::where('status', 'waiting')
-        ->where('daily_operation_id', $active->id)
-        ->count();
-
-
-        $calledCount = Queue::where('status', 'called')
-        ->where('daily_operation_id', $active->id)
-        ->count();
-
-
-        $completedCount = Queue::where('status', 'completed')
-        ->where('daily_operation_id', $active->id)
-        ->count();
-
-        $skippedCount = Queue::where('status', 'skipped')
-        ->where('daily_operation_id', $active->id)
-        ->count();
-
+        $waitingCount = $waitingQueues->count();
+        $calledCount = $processedQueues->where('status', 'called')->count();
+        $completedCount = Queue::where('daily_operation_id', $active->id)->where('status', 'completed')->count();
+        $skippedCount = $processedQueues->where('status', 'skipped')->count();
+    } else {
+        $waitingCount = $calledCount = $completedCount = $skippedCount = 0;
     }
 
-    return view('staff.queues.index', compact('queues','waitingCount','calledCount','completedCount','skippedCount'));
+    return view('staff.queues.index', compact(
+        'courts',
+        'waitingQueues',
+        'processedQueues',
+        'waitingCount',
+        'calledCount',
+        'completedCount',
+        'skippedCount'
+    ));
 }
+
 
 
     public function create()
