@@ -67,7 +67,6 @@ class GameSessionController extends Controller
 
 
             $bookingCount = Booking::where('booking_date', now()->toDateString())
-            ->where('daily_operation_id', $active->id)
             ->where('status', 'confirmed')
             ->count();
 

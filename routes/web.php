@@ -29,8 +29,11 @@ use App\Http\Controllers\Staff\GameSessionController;
 
 use App\Http\Controllers\Staff\QueueController;
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
-
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
 
 
 
@@ -42,10 +45,31 @@ Route::get('/register', function () {
     return view('auth.register');
 })->name('register');
 
+Route::get('/forgot-password', function () {
+    return view('auth.forgot-password');
+})->name('forgot-password');
+
+// Forgot Password (request reset link)
+Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
+    ->middleware('guest')
+    ->name('password.request');
+
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+    ->middleware('guest')
+    ->name('password.email');
+
+// Reset Password (via email link)
+Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])
+    ->middleware('guest')
+    ->name('password.reset');
+
+Route::post('/reset-password', [NewPasswordController::class, 'store'])
+    ->middleware('guest')
+    ->name('password.store');
+
+
 Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
 Route::post('/register', [RegisteredUserController::class, 'store']);
-
-
 
 
 Route::post('/login', [LoginController::class, 'login']);
@@ -82,14 +106,7 @@ Route::middleware(['auth', IsAdmin::class])
         Route::get('queues', [\App\Http\Controllers\Admin\QueueController::class, 'index'])->name('queues.index');
         Route::get('bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
 
-
-
-
-
-
     });
-
-
 
 Route::middleware(['auth', IsStaff::class])
     ->prefix('staff')
@@ -134,27 +151,29 @@ Route::middleware(['auth', IsStaff::class])
         Route::post('queues/{id}/call', [App\Http\Controllers\Staff\QueueController::class, 'call'])->name('queues.call');
         Route::post('queues/{id}/skip', [App\Http\Controllers\Staff\QueueController::class, 'skip'])->name('queues.skip');
 
-        // routes/web.php
-Route::get('/notifications', [\App\Http\Controllers\Staff\NotificationController::class, 'getNotifications'])
-    ->name('notifications.count');
+                // routes/web.php
+        Route::get('/notifications', [\App\Http\Controllers\Staff\NotificationController::class, 'getNotifications'])
+            ->name('notifications.count');
 
 
 
     });
 
 
-
-Route::middleware(['auth', IsCustomer::class])
+Route::middleware(['auth' , 'verified', IsCustomer::class])
     ->prefix('customer')
     ->name('customer.')
     ->group(function () {
+        // Dashboard
         Route::get('/dashboard', [CustomerDashboard::class, 'index'])->name('dashboard');
+
+
+
         Route::resource('bookings', \App\Http\Controllers\Customer\BookingController::class)->only(['index', 'create', 'store']);
         Route::resource('booking_requests', \App\Http\Controllers\Customer\BookingRequestController::class);
-        
 
-       
-
+        Route::get('/courts/{court}', [\App\Http\Controllers\Customer\CourtController::class, 'show'])->name('courts.show');
+        Route::get('/courts', [\App\Http\Controllers\Customer\CourtController::class, 'index'])->name('courts.index');
 
     });
 
@@ -163,6 +182,40 @@ Route::middleware(['auth', IsCustomer::class])
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
+
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+// 👇 when user clicks verification link
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    // role-based redirect after verification
+    $user = $request->user();
+
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->role === 'staff') {
+        return redirect()->route('staff.dashboard');
+    } elseif ($user->role === 'customer') {
+        return redirect()->route('customer.dashboard');
+    }
+
+    return redirect('/');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+
+    return back()->with('message', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+require __DIR__.'/auth.php';
+
 
 
 

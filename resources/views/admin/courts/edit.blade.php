@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-  <form method="POST" action="{{ isset($court) ? route('admin.courts.update', $court) : route('admin.courts.store') }}">
+  <form method="POST" action="{{ isset($court) ? route('admin.courts.update', $court) : route('admin.courts.store') }} " enctype="multipart/form-data">
     @csrf
     @if(isset($court))
       @method('PUT')

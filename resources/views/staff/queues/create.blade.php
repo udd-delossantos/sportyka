@@ -50,7 +50,6 @@
                     <div class="col-md-6 mb-3">
                         <label for="hours">Hours</label>
                         <select name="hours" class="form-control" required>
-                            <option value="0">0</option>
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>

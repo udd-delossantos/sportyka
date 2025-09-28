@@ -48,8 +48,7 @@ class BookingRequestController extends Controller
 
     public function store(Request $request)
 {
-    $today = now()->toDateString();
-    $operation = DailyOperation::where('date', $today)->where('status', 'open')->first();
+    
 
 
     $validated = $request->validate([
@@ -114,7 +113,6 @@ if ($conflictInBookings || $conflictInRequests) {
     BookingRequest::create([
         'user_id' => Auth::id(),
         'court_id' => $validated['court_id'],
-        'daily_operation_id' => $operation->id,
         'booking_date' => $validated['booking_date'],
         'start_time' => $validated['start_time'],
         'end_time' => $validated['end_time'],

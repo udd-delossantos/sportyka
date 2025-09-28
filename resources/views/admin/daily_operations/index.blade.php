@@ -1,10 +1,49 @@
 @extends('layouts.admin.app')
 @section('content')
 <div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2 class="mb-0 text-primary"><strong>Daily Operations</strong></h2>
+        </div>
+        <div class="col-md-2">
+            @if($active)
+                <form action="{{ route('admin.daily_operations.close', $active->id) }}" method="POST" class="w-100">
+                    @csrf
+                    <button 
+                        type="submit" 
+                        class="btn btn-danger w-100" 
+                        onclick="return confirm('Close current operation?')"
+                    >
+                        Close Today's Operation
+                    </button>
+                </form>
+            @else
+                <button class="btn btn-danger w-100" disabled>
+                    Close Today's Operation
+                </button>
+            @endif
+        </div>
+
+        <div class="col-md-2">
+            <form action="{{ route('admin.daily_operations.open') }}" method="POST" class="w-100">
+                @csrf
+                <button class="btn btn-success w-100">Open Today's Operation</button>
+            </form>
+        </div>
+        <div class="col-md-2">
+            <form action="{{ route('admin.daily_operations.reset') }}" method="POST" class="w-100">
+                @csrf
+                <button class="btn btn-primary w-100" onclick="return confirm('Reset system and start a new day?')">
+                    Open New Day
+                </button>
+            </form>
+        </div>
+    </div>
+
+
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><strong>Daily Operations</strong></h4>
-            <h4>Total Earnings (Filtered Date): <span id="totalEarnings" class="text-success">₱ 0.00</span></h4>
+            <h4 class="mb-0"><strong>All Records</strong></h4>
             <!-- Export buttons -->
             <div>
                 <button id="exportCsv" class="btn btn-info btn-sm">
@@ -21,7 +60,7 @@
         <div class="card-body">
             @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
             @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
-           <div class="row mb-3">
+           <div class="row mb-3 align-items-end">
                 <div class="col-md-3">
                     <label for="minMonth">From Month:</label>
                     <input type="month" id="minMonth" class="form-control">
@@ -30,35 +69,13 @@
                     <label for="maxMonth">To Month:</label>
                     <input type="month" id="maxMonth" class="form-control">
                 </div>
-
-                <div class="col-md-2 d-flex align-items-end">
-                    @if($active)
-                        <form action="{{ route('admin.daily_operations.close', $active->id) }}" method="POST" class="w-100">
-                            @csrf
-                            <button class="btn btn-danger  w-100" onclick="return confirm('Close current operation?')">
-                                Close Today's Operation
-                            </button>
-                        </form>
-                    @endif
-                </div>
-
-                <div class="col-md-2 d-flex align-items-end">
-                    <form action="{{ route('admin.daily_operations.open') }}" method="POST" class="w-100">
-                        @csrf
-                        <button class="btn btn-success  w-100">Open Today's Operation</button>
-                    </form>
-                </div>
-
-                <div class="col-md-2 d-flex align-items-end">
-                    <form action="{{ route('admin.daily_operations.reset') }}" method="POST" class="w-100">
-                        @csrf
-                        <button class="btn btn-primary  w-100" onclick="return confirm('Reset system and start a new day?')">
-                            Open New Day
-                        </button>
-                    </form>
+                <div class="col-md-6">
+                    <p>Total Earnings (Filtered Date):</p><h4 class="mb-0">
+                        
+                        <span id="totalEarnings" class="text-success">₱ 0.00</span>
+                    </h4>
                 </div>
             </div>
-
 
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" id="operationsTable">

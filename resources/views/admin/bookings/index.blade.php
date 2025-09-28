@@ -27,7 +27,6 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><strong>All Bookings</strong></h4>
-            <h4>Total Earnings (Filtered Date): <span id="totalEarnings" class="text-success">₱ 0.00</span></h4>
             <!-- Export buttons -->
             <div>
                 <button id="exportCsv" class="btn btn-info btn-sm">
@@ -54,7 +53,14 @@
                     <label for="maxMonth">To Month:</label>
                     <input type="month" id="maxMonth" class="form-control">
                 </div>
+                 <div class="col-md-6">
+                    <p>Total Earnings (Filtered Date):</p><h4 class="mb-0">
+                        
+                        <span id="totalEarnings" class="text-success">₱ 0.00</span>
+                    </h4>
+                </div>
             </div>
+            
 
             <div class="table-responsive">
                 <table class="table table-bordered table-hover" id="bookingsTable">

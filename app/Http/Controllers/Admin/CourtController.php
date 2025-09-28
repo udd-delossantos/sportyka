@@ -1,10 +1,12 @@
 <?php
 
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Court;
+use Illuminate\Support\Facades\Storage;
 
 class CourtController extends Controller
 {
@@ -26,9 +28,20 @@ class CourtController extends Controller
             'sport' => 'required|string|max:100',
             'hourly_rate' => 'required|numeric|min:0',
             'status' => 'required|in:available,in-use',
+            'description' => 'nullable|string',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        Court::create($validated);
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePaths[] = $image->store('courts', 'public');
+            }
+        }
+
+        $validated['images'] = $imagePaths;
+        $court = Court::create($validated);
+
         return redirect()->route('admin.courts.index')->with('success', 'Court created successfully.');
     }
 
@@ -44,14 +57,32 @@ class CourtController extends Controller
             'sport' => 'required|string|max:100',
             'hourly_rate' => 'required|numeric|min:0',
             'status' => 'required|in:available,in-use',
+            'description' => 'nullable|string',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
+        $imagePaths = $court->images ?? [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                $imagePaths[] = $image->store('courts', 'public');
+            }
+        }
+
+        $validated['images'] = $imagePaths;
         $court->update($validated);
+
         return redirect()->route('admin.courts.index')->with('success', 'Court updated successfully.');
     }
 
     public function destroy(Court $court)
     {
+        // Optionally delete images from storage
+        if (!empty($court->images)) {
+            foreach ($court->images as $image) {
+                Storage::disk('public')->delete($image);
+            }
+        }
+
         $court->delete();
         return redirect()->route('admin.courts.index')->with('success', 'Court deleted.');
     }

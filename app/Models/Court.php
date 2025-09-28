@@ -14,7 +14,14 @@ class Court extends Model
         'sport',
         'hourly_rate',
         'status',
+        'description',
+        'images',
     ];
+
+        protected $casts = [
+    'images' => 'array',
+];
+
 
     
 }

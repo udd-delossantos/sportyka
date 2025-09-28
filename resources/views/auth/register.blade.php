@@ -69,7 +69,7 @@
 
                         <hr>
                         <div class="text-center">
-                            <a class="small" href="index.html">Forgot Password?</a>
+                            <a class="small" href="{{ route('password.request') }}">Forgot Password?</a>
                         </div>
                         <div class="text-center">
                             <a class="small" href="{{ route('login') }}">Already have an account? Login!</a>

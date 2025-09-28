@@ -1,22 +1,16 @@
 @extends('layouts.admin.app') @section('title', 'Sporty Ka') @section('content')
 <div class="container-fluid report-section">
-    
     <div class="px-0">
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
             <h2 class="mb-0 text-primary"><strong>Dashboard</strong></h2>
-           <div class="col-md-3 px-0">
-    <input type="month" id="monthFilter" class="form-control" 
-        value="{{ $month }}" placeholder="Select Month" />
-</div>
+            <div class="col-md-3 px-0">
+                <input type="month" id="monthFilter" class="form-control" value="{{ $month }}" placeholder="Select Month" />
+            </div>
 
             <!-- Print Button -->
-            <button id="printReport" class="btn btn-sm btn-primary ms-2">
-                <i class="fas fa-print"></i> Print Report
-            </button>
+            <button id="printReport" class="btn btn-sm btn-primary ms-2"><i class="fas fa-print"></i> Print Report</button>
         </div>
     </div>
-
-    
 
     <!-- Cash / GCash -->
     <div class="row mb4">
@@ -37,7 +31,6 @@
                 </div>
             </div>
         </div>
-
 
         <div class="col-xl-4 col-md-6 mb-4">
             <div class="card bg-success shadow h-100 py-2">
@@ -82,12 +75,12 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Sessions (Completed)
+                                Total Sessions
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $monthlySessionCount }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            <i class="fas fa-check fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -101,12 +94,12 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Walk-in Sessions (Completed)
+                                Walk-in Sessions
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $monthlyWalkinCount }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            <i class="fas fa-person-walking fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -120,12 +113,12 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Booking Sessions (Completed)
+                                Booking Sessions
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $monthlyBookingCount }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            <i class="fas fa-bookmark fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -191,6 +184,7 @@
             </div>
         </div>
     </div>
+    
 </div>
 @endsection @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -233,8 +227,7 @@
         });
     });
 </script>
-@endpush
-@push('styles')
+@endpush @push('styles')
 <style>
     @media print {
         /* Hide everything by default */
@@ -243,7 +236,8 @@
         }
 
         /* Show only the report section */
-        .report-section, .report-section * {
+        .report-section,
+        .report-section * {
             visibility: visible;
         }
 
@@ -261,9 +255,7 @@
         }
     }
 </style>
-@endpush
-
-@push('scripts')
+@endpush @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {

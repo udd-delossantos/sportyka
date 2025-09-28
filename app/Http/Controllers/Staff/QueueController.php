@@ -48,7 +48,7 @@ class QueueController extends Controller
         // Called + Skipped queues
         $processedQueues = Queue::with(['court', 'staff'])
             ->where('daily_operation_id', $active->id)
-            ->whereIn('status', ['called', 'skipped'])
+            ->whereIn('status', ['called', 'skipped', 'completed'])
             ->orderByDesc('updated_at')
             ->get();
 

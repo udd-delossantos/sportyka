@@ -51,23 +51,20 @@ class BookingController extends Controller
         $confirmedCount = Booking::where('status', 'confirmed')->count();
         $ongoingCount = Booking::where('status', 'ongoing')->count();
 
-        $active = \App\Models\DailyOperation::where('status', 'open')->first();
-        if (!$active){
+       
 
             $completedTodayCount = 0;
             $voidedTodayCount = 0;
 
-        }else{
 
             $completedTodayCount = Booking::where('status', 'completed')
-            ->where('daily_operation_id', $active->id)
+            ->whereDate('created_at', Carbon::today())
             ->count();
 
             $voidedTodayCount = Booking::where('status', 'voided')
-            ->where('daily_operation_id', $active->id)
+            ->whereDate('created_at', Carbon::today())
             ->count();
-
-        }
+        
 
         return view('staff.bookings.index', compact('bookings', 'requests', 'events', 'confirmedCount', 'ongoingCount', 'completedTodayCount', 'voidedTodayCount'));
     }
@@ -80,7 +77,6 @@ class BookingController extends Controller
         $booking = Booking::create([
             'user_id'           => $request->user_id,
             'court_id'          => $request->court_id,
-            'daily_operation_id'=> $request->daily_operation_id,
             'booking_date'      => $request->booking_date,
             'start_time'        => $request->start_time,
             'end_time'          => $request->end_time,

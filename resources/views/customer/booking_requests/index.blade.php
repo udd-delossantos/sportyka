@@ -2,13 +2,19 @@
 
 @section('content')
 <div class="container">
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h2 class="text-primary"><strong>My Bookings</strong></h2>
-            <p class="mb-0">View and manage all your court bookings below.</p>
+    <!-- Page Header -->
+    <div class="bg-white border-bottom shadow-sm py-3 mb-4">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <h1 class="h4 mb-0 text-primary">My Bookings</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0 small">
+                    <li class="breadcrumb-item"><a href="{{ route('customer.dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Bookings</li>
+                </ol>
+            </nav>
+        </div>
     </div>
 
-    </div>
     
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -37,7 +43,7 @@
     <!-- Booking Cards -->
     <div id="bookingList">
         @forelse ($bookingRequests as $bookingRequest)
-        <div class="card shadow-lg mb-4 booking-card" 
+        <div class="card border-left-primary shadow-lg mb-4 booking-card" style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);"
              data-status="{{ strtolower($bookingRequest->status) }}"
              data-search="{{ strtolower($bookingRequest->court->name) }} {{ strtolower($bookingRequest->transaction_no ?? '') }} {{ strtolower($bookingRequest->status) }}">
             <div class="card-body">
@@ -66,19 +72,19 @@
                 <!-- Details Grid -->
                 <div class="row g-3 mb-3">
                     <div class="col-md-4">
-                        <div class="p-3 bg-light rounded">
+                        <div class="p-3 bg-white rounded">
                             <p class="small text-muted mb-1">Date</p>
                             <p class="fw-semibold mb-0">{{ \Carbon\Carbon::parse($bookingRequest->booking_date)->format('F d, Y') }}</p>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="p-3 bg-light rounded">
+                        <div class="p-3 bg-white rounded">
                             <p class="small text-muted mb-1">Time</p>
                             <p class="fw-semibold mb-0">{{ \Carbon\Carbon::parse($bookingRequest->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($bookingRequest->end_time)->format('h:i A') }}</p>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="p-3 bg-light rounded">
+                        <div class="p-3 bg-white rounded">
                             <p class="small text-muted mb-1">Duration</p>
                             <p class="fw-semibold mb-0">{{ $bookingRequest->expected_hours }}h {{ $bookingRequest->expected_minutes }}m</p>
                         </div>

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('staff_id')->nullable()->constrained('users')->onDelete('set null'); // staff who accepted
             $table->foreignId('court_id')->constrained()->onDelete('cascade');
-            $table->foreignId('daily_operation_id')->constrained()->onDelete('cascade');
             $table->date('booking_date');
             $table->time('start_time');
             $table->time('end_time');
