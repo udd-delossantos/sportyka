@@ -29,6 +29,17 @@
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h4 class="mb-0"><strong>Bookings List</strong></h4>
+                 <div>
+                <button id="exportCsv" class="btn btn-info btn-sm">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+                <button id="exportExcel" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button id="printTable" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
             </div>
             <div class="card-body">
                 @if(session('error'))
@@ -126,15 +137,43 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
-        $('#bookingsTable').DataTable({
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50, 100],
-            layout: {
-                topStart: {
-                    buttons: ['print']
-                }
+        var table = $('#bookingsTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        dom: 
+            // top (search removed since you already have buttons outside)
+            '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
+            // bottom with pagination aligned right
+            '<"bottom d-flex justify-content-between align-items-center"ip>',
+        buttons: [
+            {
+                extend: 'csvHtml5',
+                title: 'Scheduled Bookings Records',
+                exportOptions: { columns: ':not(:last-child)' }
+            },
+            {
+                extend: 'excelHtml5',
+                title: 'Scheduled Bookings Records',
+                exportOptions: { columns: ':not(:last-child)' }
+            },
+            {
+                extend: 'print',
+                title: 'Scheduled Bookings Records',
+                exportOptions: { columns: ':not(:last-child)' }
             }
-        });
+        ]
+    });
+    // External buttons
+    $('#exportCsv').on('click', function() {
+        table.button(0).trigger();
+    });
+    $('#exportExcel').on('click', function() {
+        table.button(1).trigger();
+    });
+    $('#printTable').on('click', function() {
+        table.button(2).trigger();
+    });
+
     });
 
     document.addEventListener('DOMContentLoaded', function () {

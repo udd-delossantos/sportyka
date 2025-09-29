@@ -105,6 +105,8 @@ Route::middleware(['auth', IsAdmin::class])
         Route::get('payments', [\App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
         Route::get('queues', [\App\Http\Controllers\Admin\QueueController::class, 'index'])->name('queues.index');
         Route::get('bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
+        Route::get('booking_requests', [\App\Http\Controllers\Admin\BookingRequestController::class, 'index'])->name('booking_requests.index');
+
 
     });
 

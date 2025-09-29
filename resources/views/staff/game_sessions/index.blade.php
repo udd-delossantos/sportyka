@@ -244,8 +244,19 @@
     </div>
 
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h5 class="m-0"><strong>Session History</strong></h5>
+            <div>
+                <button id="exportCsv" class="btn btn-info btn-sm">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+                <button id="exportExcel" class="btn btn-success btn-sm">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+                <button id="printTable" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-print"></i> Print
+                </button>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -281,9 +292,11 @@
         </div>
     </div>
 </div>
-@endsection @push('scripts')
+@endsection
+
+@push('scripts')
 <script>
-        document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     // Booking filter
     const bookingFilter = document.getElementById('bookingCourtFilter');
     const bookingCards = document.querySelectorAll('.booking-card');
@@ -311,7 +324,6 @@
             }
         });
     }
-
 
     // Queue filter
     const courtSort = document.getElementById("courtSort");
@@ -342,63 +354,78 @@
     }
 });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            @foreach ($activeSessions as $session)
-                @if ($session->status === 'ongoing' && $session->start_time)
-                    (function () {
-                        const sessionId = {{ $session->id }};
-                        const timerEl = document.getElementById('timer-{{ $session->id }}');
-                        const startTime = new Date("{{ \Carbon\Carbon::parse($session->start_time)->format('Y-m-d H:i:s') }}".replace(' ', 'T'));
-                        const durationMs = ({{ $session->expected_hours }} * 60 + {{ $session->expected_minutes }}) * 60 * 1000;
-                        const endTime = startTime.getTime() + durationMs;
+// Timers for active sessions
+document.addEventListener('DOMContentLoaded', function () {
+    @foreach ($activeSessions as $session)
+        @if ($session->status === 'ongoing' && $session->start_time)
+            (function () {
+                const sessionId = {{ $session->id }};
+                const timerEl = document.getElementById('timer-{{ $session->id }}');
+                const startTime = new Date("{{ \Carbon\Carbon::parse($session->start_time)->format('Y-m-d H:i:s') }}".replace(' ', 'T'));
+                const durationMs = ({{ $session->expected_hours }} * 60 + {{ $session->expected_minutes }}) * 60 * 1000;
+                const endTime = startTime.getTime() + durationMs;
 
-                        function updateTimer() {
-                            const now = new Date().getTime();
-                            const remaining = endTime - now;
+                function updateTimer() {
+                    const now = new Date().getTime();
+                    const remaining = endTime - now;
 
-                            if (remaining <= 0) {
-                                timerEl.innerText = '00:00:00';$(document).ready(function() {
-                                });
-                                document.getElementById('end-form-{{ $session->id }}').submit();
-                                return;
-                            }
+                    if (remaining <= 0) {
+                        timerEl.innerText = '00:00:00';
+                        document.getElementById('end-form-{{ $session->id }}').submit();
+                        return;
+                    }
 
-                            const hrs = Math.floor((remaining / (1000 * 60 * 60)) % 24);
-                            const mins = Math.floor((remaining / (1000 * 60)) % 60);
-                            const secs = Math.floor((remaining / 1000) % 60);
+                    const hrs = Math.floor((remaining / (1000 * 60 * 60)) % 24);
+                    const mins = Math.floor((remaining / (1000 * 60)) % 60);
+                    const secs = Math.floor((remaining / 1000) % 60);
 
-                            timerEl.innerText = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                        }
+                    timerEl.innerText = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
 
-                        updateTimer();
-                        setInterval(updateTimer, 1000);
-                    })();
-                @endif
-            @endforeach
-        });
+                updateTimer();
+                setInterval(updateTimer, 1000);
+            })();
+        @endif
+    @endforeach
+});
 
-         $('#completedSessionsTable').DataTable({
+// DataTable
+$(document).ready(function () {
+    var table = $('#completedSessionsTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
-        dom: '<"d-flex justify-content-between align-items-center mb-2"lBf>rtip', 
+        dom:
+            '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
+            '<"bottom d-flex justify-content-between align-items-center"ip>',
         buttons: [
             {
+                extend: 'csvHtml5',
+                title: 'Payment Records',
+                exportOptions: { columns: ':visible' }
+            },
+            {
+                extend: 'excelHtml5',
+                title: 'Payment Records',
+                exportOptions: { columns: ':visible' }
+            },
+            {
                 extend: 'print',
-                title: 'Queues',
-                text: '<i class="fas fa-print"></i> Print',
-                className: 'btn btn-secondary btn-sm'
-            },
-            {
-                extend: 'csv',
-                text: '<i class="fas fa-file-csv"></i> CSV',
-                className: 'btn btn-success btn-sm'
-            },
-            {
-                extend: 'excel',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                className: 'btn btn-primary btn-sm'
+                title: 'Payment Records',
+                exportOptions: { columns: ':visible' }
             }
         ]
     });
+
+    // External buttons
+    $('#exportCsv').on('click', function () {
+        table.button(0).trigger();
+    });
+    $('#exportExcel').on('click', function () {
+        table.button(1).trigger();
+    });
+    $('#printTable').on('click', function () {
+        table.button(2).trigger();
+    });
+});
 </script>
 @endpush

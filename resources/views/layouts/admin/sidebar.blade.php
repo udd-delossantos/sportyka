@@ -42,6 +42,8 @@
                         <a class="collapse-item" href="{{ route('admin.payments.index') }}">Payments</a>
                         <a class="collapse-item" href="{{ route('admin.queues.index') }}">Queues</a>
                         <a class="collapse-item" href="{{ route('admin.bookings.index') }}">Bookings</a>
+                        <a class="collapse-item" href="{{ route('admin.booking_requests.index') }}">Booking Requests</a>
+
                     </div>
                 </div>
             </li>

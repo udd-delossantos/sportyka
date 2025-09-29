@@ -83,21 +83,24 @@
         lengthMenu: [5, 10, 25, 50, 100],
         dom: '<"d-flex justify-content-between align-items-center mb-2"lBf>rtip', 
         buttons: [
-            {
-                extend: 'print',
-                title: 'Queues',
-                text: '<i class="fas fa-print"></i> Print',
-                className: 'btn btn-secondary btn-sm'
-            },
+           
             {
                 extend: 'csv',
+                title: 'Payment Records',
                 text: '<i class="fas fa-file-csv"></i> CSV',
                 className: 'btn btn-info btn-sm'
             },
             {
                 extend: 'excel',
+                title: 'Payment Records',
                 text: '<i class="fas fa-file-excel"></i> Excel',
                 className: 'btn btn-success btn-sm'
+            },
+             {
+                extend: 'print',
+                title: 'Payment Records',
+                text: '<i class="fas fa-print"></i> Print',
+                className: 'btn btn-secondary btn-sm'
             }
         ]
     });

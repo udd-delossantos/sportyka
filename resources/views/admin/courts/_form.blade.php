@@ -53,16 +53,29 @@
     </div>
 
     @if(isset($court) && !empty($court->images))
-      <div class="mb-3">
-          <label class="form-label">Existing Images</label>
-          <div class="d-flex flex-wrap gap-2">
-              @foreach($court->images as $image)
+  <div class="mb-3">
+      <label class="form-label">Existing Images</label>
+      <div class="d-flex flex-wrap gap-3">
+          @foreach($court->images as $index => $image)
+              <div class="position-relative">
                   <img src="{{ asset('storage/'.$image) }}" alt="Court Image" 
-                       class="img-thumbnail" style="width: 150px; height: 120px; object-fit: cover;">
-              @endforeach
-          </div>
+                       class="img-thumbnail mb-2" 
+                       style="width: 150px; height: 120px; object-fit: cover;">
+
+                  <!-- Delete checkbox -->
+                  <div class="form-check text-center">
+                      <input class="form-check-input" type="checkbox" 
+                             name="delete_images[]" value="{{ $image }}" id="deleteImage{{ $index }}">
+                      <label class="form-check-label small" for="deleteImage{{ $index }}">
+                          Remove
+                      </label>
+                  </div>
+              </div>
+          @endforeach
       </div>
-    @endif
+  </div>
+@endif
+
   </div>
   <div class="card-footer">
   <button type="submit" class="btn btn-success btn-sm">Save</button>
