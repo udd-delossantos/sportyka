@@ -29,7 +29,8 @@ class DashboardController extends Controller
     $monthlyBookingCount = 0;
     $monthlyWalkinCount = 0;
     $allBookingCount = 0;
-    $confirmedBookingCount = 0; // ✅ new
+    $confirmedBookingCount = 0; 
+    $confirmedBookingsTotalAmount = 0; // ✅ new
     $monthlySessionsCount = 0;
 
     $courts = Court::all();
@@ -53,11 +54,17 @@ class DashboardController extends Controller
             ->whereYear('booking_date', $startDate->year)
             ->count();
 
-        // ✅ Confirmed bookings only
+        // ✅ Confirmed bookings only (count)
         $confirmedBookingCount = Booking::whereMonth('booking_date', $startDate->month)
             ->whereYear('booking_date', $startDate->year)
-            ->where('status', 'confirmed') // adjust if your column name differs
+            ->where('status', 'confirmed')
             ->count();
+
+        // ✅ Confirmed bookings total amount
+        $confirmedBookingsTotalAmount += Booking::whereMonth('booking_date', $startDate->month)
+            ->whereYear('booking_date', $startDate->year)
+            ->where('status', 'confirmed')
+            ->sum('amount');
 
         // Payments
         $payments = Payment::whereIn('game_session_id', $sessions->pluck('id'))->get();
@@ -72,7 +79,7 @@ class DashboardController extends Controller
         $monthlyGcash += ($gcashTotal + $queueGcashTotal);
     }
 
-    $monthlyEarnings = $monthlyCash + $monthlyGcash;
+    $monthlyEarnings = $monthlyCash + $monthlyGcash + $confirmedBookingsTotalAmount; // ✅ include confirmed bookings
 
     // Earnings per court (Donut Chart) including queues
     $earningsPerCourt = Court::all()->mapWithKeys(function ($court) use ($startDate, $endDate) {
@@ -87,10 +94,16 @@ class DashboardController extends Controller
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('amount');
 
-        return [$court->name => $sessionPayments + $queueEarnings];
+        // Confirmed bookings earnings for this court
+        $bookingEarnings = Booking::where('court_id', $court->id)
+            ->whereBetween('booking_date', [$startDate, $endDate])
+            ->where('status', 'confirmed')
+            ->sum('amount');
+
+        return [$court->name => $sessionPayments + $queueEarnings + $bookingEarnings];
     });
 
-    // Weekly Earnings (Line Chart) - include queues + payments
+    // Weekly Earnings (Line Chart) - include queues + payments + confirmed bookings
     $weeksInMonth = ceil($startDate->daysInMonth / 7);
     $weeklyEarnings = collect();
 
@@ -108,7 +121,12 @@ class DashboardController extends Controller
         // Queues
         $queueTotal = Queue::whereBetween('created_at', [$weekStart, $weekEnd])->sum('amount');
 
-        $weeklyEarnings->put("Week $week", $paymentTotal + $queueTotal);
+        // ✅ Confirmed bookings
+        $bookingTotal = Booking::whereBetween('booking_date', [$weekStart, $weekEnd])
+            ->where('status', 'confirmed')
+            ->sum('amount');
+
+        $weeklyEarnings->put("Week $week", $paymentTotal + $queueTotal + $bookingTotal);
     }
 
     return view('admin.dashboard', compact(
@@ -120,35 +138,12 @@ class DashboardController extends Controller
         'monthlyBookingCount',
         'monthlyWalkinCount',
         'allBookingCount',
-        'confirmedBookingCount', // ✅ pass to view
+        'confirmedBookingCount', 
+        'confirmedBookingsTotalAmount', // ✅ pass total amount
         'earningsPerCourt',
         'weeklyEarnings'
     ));
 }
 
-    public function printReport(Request $request)
-{
-    $month = $request->get('month', now()->format('Y-m'));
-
-    // Reuse the same logic as your dashboard
-    $monthlyEarnings = $this->getMonthlyEarnings($month);
-    $monthlyCash = $this->getMonthlyCash($month);
-    $monthlyGcash = $this->getMonthlyGcash($month);
-    $monthlySessionCount = $this->getMonthlySessionCount($month);
-    $monthlyWalkinCount = $this->getMonthlyWalkinCount($month);
-    $monthlyBookingCount = $this->getMonthlyBookingCount($month);
-    $allBookingCount = $this->getAllBookingCount($month);
-
-    return view('admin.reports.print_report', compact(
-        'month',
-        'monthlyEarnings',
-        'monthlyCash',
-        'monthlyGcash',
-        'monthlySessionCount',
-        'monthlyWalkinCount',
-        'monthlyBookingCount',
-        'allBookingCount'
-    ));
-}
 
 }

@@ -48,9 +48,6 @@ class BookingRequestController extends Controller
 
     public function store(Request $request)
 {
-    
-
-
     $validated = $request->validate([
         'court_id' => 'required|exists:courts,id',
         'booking_date' => 'required|date|after_or_equal:today',
@@ -58,62 +55,62 @@ class BookingRequestController extends Controller
         'end_time' => 'required|after:start_time',
         'hours' => 'required|integer|min:0|max:23',
         'minutes' => 'required|integer|min:0|max:59',
-        'transaction_no' => 'required|string|min:13|max:13'
+        'transaction_no' => 'required|string|size:13'
     ]);
 
-    // Check for conflicts in bookings OR requests
-   $conflictInBookings = Booking::where('court_id', $request->court_id)
-    ->where('booking_date', $request->booking_date)
-    ->where('status', '!=', 'voided')
-    ->where(function ($query) use ($request) {
-        $query->where(function ($q) use ($request) {
-            // Overlap happens only if start < new_end AND end > new_start
-            $q->where('start_time', '<', $request->end_time)
-              ->where('end_time', '>', $request->start_time);
-        });
-    })
-    ->exists();
+    $userId = Auth::id();
+    $bookingDate = $validated['booking_date'];
 
-$conflictInRequests = BookingRequest::where('court_id', $request->court_id)
-    ->where('booking_date', $request->booking_date)
-    ->where('status', 'pending')
-    ->where(function ($query) use ($request) {
-        $query->where(function ($q) use ($request) {
-            $q->where('start_time', '<', $request->end_time)
-              ->where('end_time', '>', $request->start_time);
-        });
-    })
-    ->exists();
+    // 🔒 Strictly count all bookings + requests for that user on that date
+    $totalBookings = Booking::where('user_id', $userId)
+        ->whereDate('booking_date', $bookingDate)
+        ->whereNotIn('status', ['voided', 'cancelled']) // ignore voided/cancelled
+        ->count();
 
-if ($conflictInBookings || $conflictInRequests) {
-    return back()->withInput()->with('error', 'This time slot is already reserved. Please select an available time slot.');
-}
+    $totalRequests = BookingRequest::where('user_id', $userId)
+        ->whereDate('booking_date', $bookingDate)
+        ->where('status', 'pending')
+        ->count();
 
+    $dailyTotal = $totalBookings + $totalRequests;
 
-    // Compute amount (50% upfront)
-    $validated = $request->validate([
-    'court_id' => 'required|exists:courts,id',
-    'booking_date' => 'required|date|after_or_equal:today',
-    'start_time' => 'required',
-    'end_time' => 'required|after:start_time',
-    'hours' => 'required|integer|min:0|max:23',
-    'minutes' => 'required|integer|min:0|max:59',
-    'transaction_no' => 'required|string|size:13'
-]);
+    if ($dailyTotal >= 3) {
+        return back()->withInput()->with('error', '❌ Limit reached: You can only make up to 6 bookings per day.');
+    }
 
+    // ✅ Check conflicts
+    $conflictInBookings = Booking::where('court_id', $request->court_id)
+        ->whereDate('booking_date', $bookingDate)
+        ->whereNotIn('status', ['voided', 'cancelled'])
+        ->where(function ($query) use ($request) {
+            $query->where('start_time', '<', $request->end_time)
+                  ->where('end_time', '>', $request->start_time);
+        })
+        ->exists();
+
+    $conflictInRequests = BookingRequest::where('court_id', $request->court_id)
+        ->whereDate('booking_date', $bookingDate)
+        ->where('status', 'pending')
+        ->where(function ($query) use ($request) {
+            $query->where('start_time', '<', $request->end_time)
+                  ->where('end_time', '>', $request->start_time);
+        })
+        ->exists();
+
+    if ($conflictInBookings || $conflictInRequests) {
+        return back()->withInput()->with('error', 'This time slot is already reserved. Please select an available time slot.');
+    }
+
+    // ✅ Compute amount (50% downpayment)
     $court = Court::findOrFail($validated['court_id']);
-
-    // Compute total duration in minutes
     $totalMins = ((int)$validated['hours'] * 60) + (int)$validated['minutes'];
-
-    // Compute amount (50% downpayment)
     $ratePerMinute = $court->hourly_rate / 60;
     $totalAmount = round(($totalMins * $ratePerMinute) * 0.5, 2);
 
     BookingRequest::create([
-        'user_id' => Auth::id(),
+        'user_id' => $userId,
         'court_id' => $validated['court_id'],
-        'booking_date' => $validated['booking_date'],
+        'booking_date' => $bookingDate,
         'start_time' => $validated['start_time'],
         'end_time' => $validated['end_time'],
         'expected_hours' => (int) $validated['hours'],
@@ -123,9 +120,10 @@ if ($conflictInBookings || $conflictInRequests) {
         'status' => 'pending',
     ]);
 
+    return redirect()->route('customer.booking_requests.create')
+        ->with('success', 'Booking request submitted and awaiting staff approval.');
+}
 
-        return redirect()->route('customer.booking_requests.create')->with('success', 'Booking request submitted and awaiting staff approval.');
-    }
 
 
 

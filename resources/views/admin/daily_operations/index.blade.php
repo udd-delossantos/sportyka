@@ -95,6 +95,7 @@
                                 <td>{{ \Carbon\Carbon::parse($op->date)->format('F d, Y') }}</td>                          
                                 <td>{{ $op->opened_at->format('M d, Y - h:i A') }}</td>
                                 <td>{{ $op->closed_at?->format('M d, Y - h:i A') ?? '—' }}</td>
+                                
                                 <td>₱{{ number_format($operationPayments[$op->id] ?? 0, 2) }}</td>
                                 <td class="text-center">{{ ucfirst($op->status) }}</td>
                                 <td class="text-center">

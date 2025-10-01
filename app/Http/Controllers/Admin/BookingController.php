@@ -56,11 +56,11 @@ class BookingController extends Controller
         }else{
 
             $completedTodayCount = Booking::where('status', 'completed')
-            ->where('daily_operation_id', $active->id)
+            ->whereDate('updated_at', Carbon::today()) // always today's date
             ->count();
 
             $voidedTodayCount = Booking::where('status', 'voided')
-            ->where('daily_operation_id', $active->id)
+            ->whereDate('updated_at', Carbon::today()) // always today's date
             ->count();
 
         }

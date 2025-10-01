@@ -13,8 +13,8 @@
     </div>
 
     <!-- Cash / GCash -->
-    <div class="row mb4">
-        <div class="col-xl-4 col-md-6 mb-4">
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -49,7 +49,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -66,6 +66,25 @@
                 </div>
             </div>
         </div>
+        <!-- Confirmed Bookings Total Amount -->
+<div class="col-xl-3 col-md-6 mb-4">
+    <div class="card bg-warning shadow h-100 py-2">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-light text-uppercase mb-1">
+                        GCash Upfront Collected
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-light">₱{{ number_format($confirmedBookingsTotalAmount, 2) }}</div>
+                </div>
+                <div class="col-auto">
+                    <i class="fas fa-mobile-screen fa-2x text-light"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
     </div>
     <div class="row">
         <!-- Earnings -->
@@ -288,15 +307,41 @@
                         <p style="margin:5px 0;">Report for: ${monthText}</p>
                     </div>
 
-                    <table style="width:100%; border-collapse: collapse; margin-bottom:20px; font-size:14px;">
-                        <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Total Earnings</th><td style="padding:6px; border-bottom:1px solid #ddd;">₱{{ number_format($monthlyEarnings, 2) }}</td></tr>
-                        <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Cash Collected</th><td style="padding:6px; border-bottom:1px solid #ddd;">₱{{ number_format($monthlyCash, 2) }}</td></tr>
-                        <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">GCash Collected</th><td style="padding:6px; border-bottom:1px solid #ddd;">₱{{ number_format($monthlyGcash, 2) }}</td></tr>
-                        <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Total Sessions (Completed)</th><td style="padding:6px; border-bottom:1px solid #ddd;">{{ $monthlySessionCount }}</td></tr>
-                        <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Walk-in Sessions (Completed)</th><td style="padding:6px; border-bottom:1px solid #ddd;">{{ $monthlyWalkinCount }}</td></tr>
-                        <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Booking Sessions (Completed)</th><td style="padding:6px; border-bottom:1px solid #ddd;">{{ $monthlyBookingCount }}</td></tr>
-                        <tr><th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">All Bookings (Confirmed, Completed, Ongoing, Voided)</th><td style="padding:6px; border-bottom:1px solid #ddd;">{{ $allBookingCount }}</td></tr>
-                    </table>
+                   <table style="width:100%; border-collapse: collapse; margin-bottom:20px; font-size:14px;">
+    <tr>
+        <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Total Earnings</th>
+        <td style="padding:6px; border-bottom:1px solid #ddd;">₱{{ number_format($monthlyEarnings, 2) }}</td>
+    </tr>
+    <tr>
+        <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Cash Collected</th>
+        <td style="padding:6px; border-bottom:1px solid #ddd;">₱{{ number_format($monthlyCash, 2) }}</td>
+    </tr>
+    <tr>
+        <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">GCash Collected</th>
+        <td style="padding:6px; border-bottom:1px solid #ddd;">₱{{ number_format($monthlyGcash, 2) }}</td>
+    </tr>
+    <tr>
+        <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Confirmed Bookings (Collected)</th>
+        <td style="padding:6px; border-bottom:1px solid #ddd;">₱{{ number_format($confirmedBookingsTotalAmount ?? 0, 2) }}</td>
+    </tr>
+    <tr>
+        <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Total Sessions (Completed)</th>
+        <td style="padding:6px; border-bottom:1px solid #ddd;">{{ $monthlySessionCount }}</td>
+    </tr>
+    <tr>
+        <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Walk-in Sessions (Completed)</th>
+        <td style="padding:6px; border-bottom:1px solid #ddd;">{{ $monthlyWalkinCount }}</td>
+    </tr>
+    <tr>
+        <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">Booking Sessions (Completed)</th>
+        <td style="padding:6px; border-bottom:1px solid #ddd;">{{ $monthlyBookingCount }}</td>
+    </tr>
+    <tr>
+        <th style="text-align:left; padding:6px; border-bottom:1px solid #ddd;">All Bookings (Confirmed, Completed, Ongoing, Voided)</th>
+        <td style="padding:6px; border-bottom:1px solid #ddd;">{{ $allBookingCount }}</td>
+    </tr>
+</table>
+
 
                     <div style="margin-top:20px; font-size:16px;">
                         <p><strong>Total Collected:</strong> ₱{{ number_format($monthlyEarnings, 2) }}</p>

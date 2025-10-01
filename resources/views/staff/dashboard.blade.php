@@ -12,7 +12,7 @@
 
     <!-- Cash / GCash -->
     <div class="row mb4">
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-primary shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -20,7 +20,12 @@
                             <div class="text-xs font-weight-bold text-light text-uppercase mb-1">
                                 Total Collected (Today)
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-light">₱{{ number_format($overallPayments, 2) }}</div>
+                         
+
+                            <div class="h5 mb-0 font-weight-bold text-light">
+                                ₱{{ number_format($overallPayments, 2) }}
+                            </div>
+
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-wallet fa-2x text-light"></i>
@@ -30,13 +35,13 @@
             </div>
         </div>
 
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-success shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-light text-uppercase mb-1">
-                                Cash Collected (Today)
+                                Cash Collected (Cashier)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-light">₱{{ number_format($overallCash, 2) }}</div>
                         </div>
@@ -47,15 +52,38 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-md-6 mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card bg-info shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-light text-uppercase mb-1">
-                                GCash Collected (Today)
+                                GCash Collected (Cashier)
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-light">₱{{ number_format($overallGcash, 2) }}</div>
+                            <div class="h5 mb-0 font-weight-bold text-light">
+                                ₱{{ number_format($overallGcash , 2) }}
+                            </div>
+
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mobile-screen fa-2x text-light"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card bg-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-light text-uppercase mb-1">
+                                GCash (Upfront)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-light">
+                                ₱{{ number_format($confirmedBookingsTotal , 2) }}
+                            </div>
+
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-mobile-screen fa-2x text-light"></i>
@@ -166,58 +194,79 @@
             </div>
         </div>
             <div class="card-body" id="reportSection">
-                <table class="table table-bordered" >
-                    <thead>
-                        <tr>
-                            <th>COURT</th>
-                            <th colspan="2" class="text-center">SESSION COUNT</th>
-                            <th colspan="3" class="text-center">TOTAL COLLECTED</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($report as $row)
-                        <tr>
-                            <td>{{ $row['court_name'] }}</td>
-                            <td>
-                                
-                                BOOKING: {{ $row['booking_count'] }} 
-                                
-                            </td>
-                            <td>
-                                WALK-IN: {{ $row['walkin_count'] }}
+                <h5>Breakdown</h5>
 
-                            </td>
-                            <td>
-                                
-                            CASH: ₱{{ number_format($row['cash_total'], 2) }} 
+                <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>COURT</th>
+                        <th colspan="3" class="text-center">SESSION COUNT</th>
+                        <th colspan="4" class="text-center">TOTAL COLLECTED</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($report as $row)
+                    <tr>
+                        <td>{{ $row['court_name'] }}</td>
+                        <td>
                             
+                            Booking: {{ $row['booking_count'] }} 
+                            
+                        </td>
+                        <td>
+                            Walk-in: {{ $row['walkin_count'] }}
 
-                            </td>
-                            <td>
-                                GCASH: ₱{{ number_format($row['gcash_total'], 2) }} 
-                            </td>
-                            <td>
-                                TOTAL: ₱{{ number_format($row['cash_total'] + $row['gcash_total'], 2) }}
-                            </td>
-                        </tr>
-                        @endforeach
+                        </td>
+                        <td>
+                            Total: {{ $row['walkin_count'] + $row['booking_count'] }}
+                        </td>
 
-                        <!-- Overall Totals -->
-                        <tr class="fw-bold bg-light">
-                            <td><strong>TOTAL:</strong></td>
-                            <td colspan="2" class="text-center"><strong>CUSTOMERS: {{ $overallBookingCount + $overallWalkinCount }}</strong></td>
-                            <td colspan="3" class="text-center"><strong>COLLECTED: ₱{{ number_format($overallPayments, 2) }}</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-                 <div class="mt-4">
-                    <h5>Summary (Today)</h5>
-                    <ul class="list-group">
-                        <li class="list-group-item">TOTAL CASH: ₱{{ number_format($overallCash, 2) }}</li>
-                        <li class="list-group-item">TOTAL GCASH: ₱{{ number_format($overallGcash, 2) }}</li>
-                        <li class="list-group-item bg-light"><strong>OVERALL TOTAL: ₱{{ number_format($overallPayments, 2) }}</strong></li>
-                    </ul>
-                </div>
+                        <td>
+                            
+                        Cash: ₱{{ number_format($row['cash_total'], 2) }} 
+                        
+
+                        </td>
+                        <td>
+                            GCash: ₱{{ number_format($row['gcash_total'], 2) }} 
+                        </td>
+                        <td>
+                            GCash (Upfront): ₱{{ number_format($row['confirmed_bookings_total'], 2) }} 
+                        </td>
+                        <td>
+                            Total: ₱{{ number_format($row['cash_total'] + $row['gcash_total'] + $row['confirmed_bookings_total'], 2) }}
+                        </td>
+                    </tr>
+                    @endforeach
+
+                    <!-- Overall Totals -->
+                    <tr class="fw-bold bg-light">
+                        <td><strong>TOTAL:</strong></td>
+                        <td><strong>Total: {{ $bookingCount }}</strong></td>
+                        <td><strong>Total: {{ $walkinCount }}</strong></td>
+                        <td><strong>Overall: {{ $overallBookingCount + $overallWalkinCount }}</strong></td>
+                        <td><strong>Total: {{ $totalCash }}</strong></td>
+                        <td><strong>Total: {{ $totalGcash }}</strong></td>
+                        <td><strong>Total: ₱{{ number_format($confirmedBookingsTotal, 2) }}</strong></td>
+                        <td><strong>Overall: ₱{{ number_format($overallPayments, 2) }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+                  <div class="mt-4">
+                <h5>Summary</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Total Walk-in Sessions: {{ $walkinCount }}</li>
+                    <li class="list-group-item">Total Booking Sessions: {{ $bookingCount }}</li>
+                    <li class="list-group-item bg-light"><strong>Overall Total Sessions: {{ $bookingCount + $walkinCount }}</strong></li>
+                    <li class="list-group-item">GCash (Upfront): ₱{{ number_format($confirmedBookingsTotal, 2) }}</li>
+                    <li class="list-group-item">
+                        Total GCash (Cashier): ₱{{ number_format($overallGcash, 2) }}
+                    </li>
+                    <li class="list-group-item">Total Cash (Cashier): ₱{{ number_format($overallCash, 2) }}</li>
+                    <li class="list-group-item bg-light"><strong>OVERALL TOTAL: ₱{{ number_format($overallPayments, 2) }}</strong></li>
+                </ul>
+            </div>
+
 
 
             </div>

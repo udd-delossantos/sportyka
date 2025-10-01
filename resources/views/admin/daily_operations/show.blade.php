@@ -1,30 +1,24 @@
-@extends('layouts.admin.app')
-
-@section('content')
-<div class="container">
+@extends('layouts.admin.app') @section('content')
+<div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-             <h4 class="m-0 font-weight-bold text-primary">
+            <h4 class="m-0 font-weight-bold text-primary">
                 Daily Report – {{ \Carbon\Carbon::parse($operation->date)->format('F j, Y') }}
-
             </h4>
             <!-- Export buttons -->
             <div>
-                <button id="printTable" class="btn btn-primary btn-sm">
-                    <i class="fas fa-print"></i> Print
-                </button>
+                <button id="printTable" class="btn btn-primary btn-sm"><i class="fas fa-print"></i> Print</button>
             </div>
-           
-            
         </div>
         <div class="card-body">
+            <h5>Breakdown</h5>
 
             <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>COURT</th>
-                        <th colspan="2" class="text-center">SESSION COUNT</th>
-                        <th colspan="3" class="text-center">TOTAL COLLECTED</th>
+                        <th colspan="3" class="text-center">SESSION COUNT</th>
+                        <th colspan="4" class="text-center">TOTAL COLLECTED</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,25 +26,25 @@
                     <tr>
                         <td>{{ $row['court_name'] }}</td>
                         <td>
-                            
-                            BOOKING: {{ $row['booking_count'] }} 
-                            
+                            Booking: {{ $row['booking_count'] }}
                         </td>
                         <td>
-                            WALK-IN: {{ $row['walkin_count'] }}
-
+                            Walk-in: {{ $row['walkin_count'] }}
                         </td>
                         <td>
-                            
-                        CASH: ₱{{ number_format($row['cash_total'], 2) }} 
-                        
-
+                            Total: {{ $row['walkin_count'] + $row['booking_count'] }}
                         </td>
                         <td>
-                            GCASH: ₱{{ number_format($row['gcash_total'], 2) }} 
+                            Cash: ₱{{ number_format($row['cash_total'], 2) }}
                         </td>
                         <td>
-                            TOTAL: ₱{{ number_format($row['cash_total'] + $row['gcash_total'], 2) }}
+                            GCash: ₱{{ number_format($row['gcash_total'], 2) }}
+                        </td>
+                        <td>
+                            GCash (Upfront): ₱{{ number_format($row['confirmed_bookings_total'], 2) }}
+                        </td>
+                        <td>
+                            Total: ₱{{ number_format($row['cash_total'] + $row['gcash_total'] + $row['confirmed_bookings_total'], 2) }}
                         </td>
                     </tr>
                     @endforeach
@@ -58,49 +52,58 @@
                     <!-- Overall Totals -->
                     <tr class="fw-bold bg-light">
                         <td><strong>TOTAL:</strong></td>
-                        <td colspan="2" class="text-center"><strong>CUSTOMERS: {{ $overallBookingCount + $overallWalkinCount }}</strong></td>
-                        <td colspan="3" class="text-center"><strong>COLLECTED: ₱{{ number_format($overallPayments, 2) }}</strong></td>
+                        <td><strong>Total: {{ $bookingCount }}</strong></td>
+                        <td><strong>Total: {{ $walkinCount }}</strong></td>
+                        <td><strong>Overall: {{ $overallBookingCount + $overallWalkinCount }}</strong></td>
+                        <td><strong>Total: {{ $totalCash }}</strong></td>
+                        <td><strong>Total: {{ $totalGcash }}</strong></td>
+                        <td><Strong>Total: {{ $confirmedBookingsTotal }}</Strong></td>
+                        <td><strong>Overall: ₱{{ number_format($overallPayments, 2) }}</strong></td>
                     </tr>
                 </tbody>
             </table>
 
             <div class="mt-4">
-                <h5>Summary (Today)</h5>
+                <div class="container"></div>
+                <h5>Summary</h5>
                 <ul class="list-group">
-                    <li class="list-group-item">TOTAL CASH: ₱{{ number_format($overallCash, 2) }}</li>
-                    <li class="list-group-item">TOTAL GCASH: ₱{{ number_format($overallGcash, 2) }}</li>
+                    <li class="list-group-item">Total Walk-in Sessions: {{ $walkinCount }}</li>
+                    <li class="list-group-item">Total Booking Sessions: {{ $bookingCount }}</li>
+                    <li class="list-group-item bg-light"><strong>Overall Total Sessions: {{ $bookingCount + $walkinCount }}</strong></li>
+                    <li class="list-group-item">GCash (Upfront): ₱{{ number_format($confirmedBookingsTotal, 2) }}</li>
+                    <li class="list-group-item">
+                        Total GCash (Cashier): ₱{{ number_format($overallGcash, 2) }}
+                    </li>
+                    <li class="list-group-item">Total Cash (Cashier): ₱{{ number_format($overallCash, 2) }}</li>
                     <li class="list-group-item bg-light"><strong>OVERALL TOTAL: ₱{{ number_format($overallPayments, 2) }}</strong></li>
                 </ul>
             </div>
-
         </div>
         <div class="card-footer text-left">
             <a href="{{ route('admin.daily_operations.index') }}" class="btn btn-secondary btn-sm">Back</a>
-
         </div>
     </div>
 </div>
-@endsection
-@push('scripts')
+@endsection @push('scripts')
 <script>
-document.getElementById('printTable').addEventListener('click', function () {
-    var printContents = `
+    document.getElementById("printTable").addEventListener("click", function () {
+        var printContents = `
         <div style="text-align:center; margin-bottom:20px;">
             <h2>Proving Grounds Sports Center</h2>
             <h4>Daily Operations Report</h4>
             <p>Date: {{ \Carbon\Carbon::parse($operation->date)->format('F j, Y') }}</p>
         </div>
-        ${document.querySelector('.card-body').innerHTML}
+        ${document.querySelector(".card-body").innerHTML}
         <div style="margin-top:30px; text-align:left;">
             <p><strong>Generated by Sporty Ka? Management System</strong></p>
         </div>
     `;
 
-    var originalContents = document.body.innerHTML;
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
-    location.reload(); // reload so styles and scripts come back
-});
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        location.reload(); // reload so styles and scripts come back
+    });
 </script>
 @endpush

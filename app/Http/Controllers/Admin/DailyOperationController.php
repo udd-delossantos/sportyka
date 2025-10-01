@@ -10,50 +10,62 @@ use Carbon\Carbon;
 
 class DailyOperationController extends Controller
 {
-   public function index()
-{
-    $operations = DailyOperation::orderBy('date', 'desc')->get();
+    public function index()
+    {
+        $operations = DailyOperation::orderBy('date', 'desc')->get();
+        $active = DailyOperation::where('status', 'open')->first();
 
-    $active = DailyOperation::where('status', 'open')->first();
+        $operationPayments = [];
+        $operationDetails = [];
 
-    
+        foreach ($operations as $operation) {
+            $overallCash = 0;
+            $overallGcash = 0;
 
-    $operationPayments = [];
+            $courts = \App\Models\Court::all();
+            foreach ($courts as $court) {
+                // Sessions
+                $sessions = \App\Models\GameSession::where('court_id', $court->id)
+                    ->whereDate('created_at', $operation->date)
+                    ->get();
 
-    foreach ($operations as $operation) {
-        $overallCash = 0;
-        $overallGcash = 0;
+                // Queues
+                $queues = \App\Models\Queue::where('court_id', $court->id)
+                    ->whereDate('created_at', $operation->date)
+                    ->get();
 
-        $courts = \App\Models\Court::all();
-        foreach ($courts as $court) {
-            // Sessions for this court in this operation day
-            $sessions = \App\Models\GameSession::where('court_id', $court->id)  
-                ->whereDate('created_at', $operation->date)
-                ->get();
+                // Payments
+                $payments = \App\Models\Payment::whereIn('game_session_id', $sessions->pluck('id'))->get();
 
-            $queues = \App\Models\Queue::where('court_id', $court->id)  
-                ->whereDate('created_at', $operation->date)
-                ->get();
+                $cashTotal  = $payments->where('payment_method', 'cash')->sum('amount');
+                $gcashTotal = $payments->where('payment_method', 'gcash')->sum('amount');
 
-            // Payments for this court today
-            $payments = \App\Models\Payment::whereIn('game_session_id', $sessions->pluck('id'))->get();
+                // Queue payments
+                $queueCashTotal  = $queues->whereNull('transaction_no')->sum('amount');
+                $queueGcashTotal = $queues->whereNotNull('transaction_no')->sum('amount');
 
-            $cashTotal  = $payments->where('payment_method', 'cash')->sum('amount');
-            $gcashTotal = $payments->where('payment_method', 'gcash')->sum('amount');
+                // Confirmed bookings for this court + operation date
+                $confirmedBookingsGcash = \App\Models\Booking::where('court_id', $court->id)
+                    ->whereDate('created_at', $operation->date) // use created_at, not updated_at
+                    ->where('status', 'confirmed')
+                    ->sum('amount');
 
-            // Queue payments
-            $queueCashTotal  = $queues->whereNull('transaction_no')->sum('amount');
-            $queueGcashTotal = $queues->whereNotNull('transaction_no')->sum('amount');
+                // Add everything
+                $overallCash  += ($cashTotal + $queueCashTotal);
+                $overallGcash += ($gcashTotal + $queueGcashTotal + $confirmedBookingsGcash);
+            }
 
-            $overallCash  += ($cashTotal + $queueCashTotal);
-            $overallGcash += ($gcashTotal + $queueGcashTotal);
+            $operationPayments[$operation->id] = $overallCash + $overallGcash;
+
+            $operationDetails[$operation->id] = [
+                'overallCash' => $overallCash,
+                'overallGcash' => $overallGcash,
+            ];
         }
 
-        $operationPayments[$operation->id] = $overallCash + $overallGcash;
+        return view('admin.daily_operations.index', compact('operations', 'active', 'operationPayments', 'operationDetails'));
     }
 
-    return view('admin.daily_operations.index', compact('operations', 'active', 'operationPayments'));
-}
 
 
 
@@ -144,20 +156,36 @@ class DailyOperationController extends Controller
      * Show details for an operation (sessions & payments)
      */
     public function show($id)
-    {
-        $operation = \App\Models\DailyOperation::findOrFail($id);
+{
+    $operation = \App\Models\DailyOperation::findOrFail($id);
 
-        // Get courts
-        $courts = \App\Models\Court::all();
+    // Get courts
+    $courts = \App\Models\Court::all();
 
-        // Initialize arrays
-        $report = [];
-        $overallBookingCount = 0;
-        $overallWalkinCount = 0;
-        $overallCash = 0;
-        $overallGcash = 0;
+    // Initialize arrays
+    $report = [];
+    $overallBookingCount = 0;
+    $overallWalkinCount = 0;
+    $overallCash = 0;
+    $overallGcash = 0;
 
-        foreach ($courts as $court) {
+    $bookingCount = \App\Models\GameSession::where('session_type', 'booking')->whereDate('created_at', $operation->date)->count();
+    $walkinCount  = \App\Models\GameSession::whereIn('session_type', ['walk-in', 'queue'])->whereDate('created_at', $operation->date)->count();
+
+
+
+    $cashTotal  = \App\Models\Payment::where('payment_method', 'cash')->sum('amount');
+    $gcashTotal = \App\Models\Payment::where('payment_method', 'gcash')->sum('amount');
+
+    // Queue payments
+    $queueCashTotal  = \App\Models\Queue::whereNull('transaction_no')->sum('amount');
+    $queueGcashTotal = \App\Models\Queue::whereNotNull('transaction_no')->sum('amount');
+
+    // Combine
+    $totalCash  = $cashTotal + $queueCashTotal;
+    $totalGcash = $gcashTotal + $queueGcashTotal;
+
+    foreach ($courts as $court) {
     // Sessions for this court within this operation day
     $sessions = \App\Models\GameSession::where('court_id', $court->id)  
         ->whereDate('created_at', $operation->date)
@@ -180,21 +208,29 @@ class DailyOperationController extends Controller
     $queueCashTotal  = $queues->whereNull('transaction_no')->sum('amount');
     $queueGcashTotal = $queues->whereNotNull('transaction_no')->sum('amount');
 
+    // ✅ Bookings confirmed today (calendar date, not operation date)
+    $confirmedBookingsTotal = \App\Models\Booking::where('court_id', $court->id)
+        ->whereDate('updated_at', Carbon::today()) // always today's date
+        ->where('status', 'confirmed')
+        ->sum('amount'); 
+
+
     // Combine
     $totalCash  = $cashTotal + $queueCashTotal;
     $totalGcash = $gcashTotal + $queueGcashTotal;
-    $totalCount = $bookingCount + $walkinCount; // ✅ add combined count per court
-    $totalPayments = $totalCash + $totalGcash;  // ✅ add total payments per court
+    $totalCount = $bookingCount + $walkinCount;
+    $totalPayments = $totalCash + $totalGcash + $confirmedBookingsTotal; // ✅ include confirmed bookings
 
     // Add to report
     $report[] = [
-        'court_name'     => $court->name,
-        'booking_count'  => $bookingCount,
-        'walkin_count'   => $walkinCount,
-        'cash_total'     => $totalCash,
-        'gcash_total'    => $totalGcash,
-        'total_count'    => $totalCount,     // ✅ now available in $row
-        'total_payments' => $totalPayments,  // ✅ now available in $row
+        'court_name'               => $court->name,
+        'booking_count'            => $bookingCount,
+        'walkin_count'             => $walkinCount,
+        'cash_total'               => $totalCash,
+        'gcash_total'              => $totalGcash,
+        'confirmed_bookings_total' => $confirmedBookingsTotal, // ✅ new field
+        'total_count'              => $totalCount,
+        'total_payments'           => $totalPayments,
     ];
 
     // Update overall
@@ -202,19 +238,28 @@ class DailyOperationController extends Controller
     $overallWalkinCount  += $walkinCount;
     $overallCash         += $totalCash;
     $overallGcash        += $totalGcash;
+    $overallConfirmed    = ($overallConfirmed ?? 0) + $confirmedBookingsTotal; // ✅ overall confirmed sum
 }
 
-$overallPayments = $overallCash + $overallGcash;
+    $overallPayments = $overallCash + $overallGcash + $overallConfirmed;
 
-return view('admin.daily_operations.show', compact(
-    'operation',
-    'report',
-    'overallBookingCount',
-    'overallWalkinCount',
-    'overallCash',
-    'overallGcash',
-    'overallPayments'
-));
-    }
+
+
+    return view('admin.daily_operations.show', compact(
+        'operation',
+        'report',
+        'overallBookingCount',
+        'overallWalkinCount',
+        'overallCash',
+        'overallGcash',
+        'overallPayments',
+        'confirmedBookingsTotal', // ✅ now passed to blade
+        'bookingCount',
+        'walkinCount',
+        'totalCash',
+        'totalGcash'
+    ));
+}
+
 
 }
