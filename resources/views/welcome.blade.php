@@ -8,7 +8,8 @@
         <meta name="author" content="" />
         <title>PROVING GROUNDS SPORTS CENTER</title>
         <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="{{ asset('landing/assets/favicon.ico') }}" />
+        <link rel="icon" type="image/png" href="{{ asset('img/sk-logo-2.png') }}">
+
         <!-- Bootstrap icons-->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
         <!-- Google fonts-->
@@ -22,6 +23,7 @@
         <link href="{{ asset('landing/css/styles.css') }}" rel="stylesheet" />
         <!-- In <head> -->
 <link href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" rel="stylesheet">
+
 
         <style>
             /* Remove default overlay in masthead */

@@ -1,6 +1,13 @@
 @extends('layouts.admin.app')
+@section('title', 'Sporty Ka')
 @section('content')
 <div class="container-fluid">
+    <div class="px-0">
+        <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
+            <h2 class="mb-0 text-primary"><strong>Users</strong></h2>
+        </div>
+
+    </div>
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><strong>All Users</strong></h4>

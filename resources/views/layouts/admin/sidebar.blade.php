@@ -1,12 +1,15 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('admin.dashboard') }}">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon">
-                <img src="{{ asset('img/sk-logo-2.png') }}" alt="Logo" class="rounded" style="width: 40px;">
+                    <img src="{{ asset('img/sk-logo-2.png') }}" alt="Logo" class="rounded" style="width: 40px;">
                 </div>
-                
-                <div class="sidebar-brand-text mx-3">ADMIN</div>
+
+                <div class="sidebar-brand-text mx-3 text-center">
+                    <div>SPORTY KA?</div>
+                    <small class="text-white-50" style="font-size: 12px; letter-spacing: 1px;">ADMIN</small>
+                </div>
             </a>
 
             <!-- Divider -->
@@ -81,6 +84,12 @@
                 <a class="nav-link" href="{{ route('admin.daily_operations.index') }}">
                     <i class="fas fa-flag"></i>
                     <span>Daily Operations</span></a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.gcash_qr_codes.index') }}">
+                    <i class="fas fa-qrcode"></i>
+                    <span>QR Codes</span></a>
             </li>
 
     

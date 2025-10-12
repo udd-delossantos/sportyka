@@ -21,24 +21,27 @@
     @endif
 
     <!-- Search Bar + Tabs -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <ul class="nav nav-tabs" id="statusTabs">
-            <li class="nav-item">
-                <a class="nav-link active" href="#" data-status="all">All</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-status="pending">Pending</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-status="approved">Approved</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-status="cancelled">Cancelled</a>
-            </li>
-        </ul>
+   <div class="d-flex flex-column align-items-center mb-3">
+    <ul class="nav nav-tabs sbadmin-status-tabs w-100 mb-3" id="statusTabs">
+        <li class="nav-item flex-fill text-center">
+            <a class="nav-link active" href="#" data-status="all">All</a>
+        </li>
+        <li class="nav-item flex-fill text-center">
+            <a class="nav-link" href="#" data-status="pending">Pending</a>
+        </li>
+        <li class="nav-item flex-fill text-center">
+            <a class="nav-link" href="#" data-status="approved">Approved</a>
+        </li>
+        <li class="nav-item flex-fill text-center">
+            <a class="nav-link" href="#" data-status="cancelled">Cancelled</a>
+        </li>
+    </ul>
 
-         <input type="text" id="globalSearch" class="form-control w-25" placeholder="Search bookings...">
+    <div class="search-wrapper w-50 mx-auto">
+        <input type="text" id="globalSearch" class="form-control text-center" placeholder="Search bookings...">
     </div>
+</div>
+
 
     <!-- Booking Cards -->
     <div id="bookingList">
@@ -114,8 +117,53 @@
 
     </div>
 </div>
+@endsection
 
-<!-- Filtering Script -->
+@push('styles')
+<style>
+    /* === SB Admin 2 Tabs Style === */
+    .sbadmin-status-tabs {
+        border-bottom: 2px solid #e3e6f0;
+        background-color: #fff;
+        border-radius: 0.35rem 0.35rem 0 0;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58,59,69,.15);
+    }
+
+    .sbadmin-status-tabs .nav-link {
+        color: #4e73df;
+        font-weight: 500;
+        border: none;
+        border-radius: 0;
+        padding: 0.75rem 0;
+        transition: all 0.2s ease;
+    }
+
+    .sbadmin-status-tabs .nav-link:hover {
+        background-color: #f8f9fc;
+        color: #224abe;
+    }
+
+    .sbadmin-status-tabs .nav-link.active {
+        background-color: #4e73df;
+        color: #fff !important;
+        font-weight: 600;
+        border-bottom: 3px solid #224abe;
+    }
+
+    .sbadmin-status-tabs .nav-item {
+        margin-bottom: -2px;
+    }
+
+    /* Responsive tweak: make search bar full width on mobile */
+    @media (max-width: 768px) {
+        .search-wrapper {
+            width: 100% !important;
+        }
+    }
+</style>
+@endpush
+
+@push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById("globalSearch");
@@ -149,4 +197,5 @@
         });
     });
 </script>
-@endsection
+@endpush
+

@@ -14,6 +14,8 @@
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet">
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('img/sk-logo-2.png') }}">
+
 </head>
 
 <body class="bg-gradient-primary">

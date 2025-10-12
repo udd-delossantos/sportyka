@@ -30,7 +30,7 @@
 
 <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><strong>All Records</strong></h4>
+            <h4 class="mb-0"><strong>All Booking Requests</strong></h4>
             <div>
                 <button id="exportCsv" class="btn btn-info btn-sm">
                     <i class="fas fa-file-csv"></i> CSV

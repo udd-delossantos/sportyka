@@ -303,6 +303,7 @@ class GameSessionController extends Controller
     {
         $session = GameSession::where('status', 'pending')->where('staff_id', Auth::id())->findOrFail($id);
         $session->delete();
+        Court::where('id', $session->court_id)->update(['status' => 'available']);
 
         return redirect()->back()->with('success', 'Pending session deleted.');
     }

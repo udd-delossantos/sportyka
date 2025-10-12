@@ -107,6 +107,15 @@ Route::middleware(['auth', IsAdmin::class])
         Route::get('bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
         Route::get('booking_requests', [\App\Http\Controllers\Admin\BookingRequestController::class, 'index'])->name('booking_requests.index');
 
+        Route::get('gcash-qr-codes', [\App\Http\Controllers\Admin\GcashQrCodeController::class, 'index'])->name('gcash_qr_codes.index');
+    Route::post('gcash-qr-codes', [\App\Http\Controllers\Admin\GcashQrCodeController::class, 'store'])->name('gcash_qr_codes.store');
+    Route::post('gcash-qr-codes/{id}/set-active', [\App\Http\Controllers\Admin\GcashQrCodeController::class, 'setActive'])->name('gcash_qr_codes.setActive');
+    Route::delete('gcash-qr-codes/{id}', [\App\Http\Controllers\Admin\GcashQrCodeController::class, 'destroy'])->name('gcash_qr_codes.destroy');
+
+    Route::get('/notifications', [\App\Http\Controllers\Admin\NotificationController::class, 'getNotifications'])
+            ->name('notifications.count');
+
+
 
     });
 

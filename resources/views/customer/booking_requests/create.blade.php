@@ -135,9 +135,23 @@
                         <div class="alert alert-warning mb-3">
                             <p class="mb-0">Scan the QR code and pay the 50% down payment. Copy the 13-digit code reference number and paste it below. Please send the exact amount to avoid delays</p>
                         </div>
-                        <div class="text-center mb-3">
-                            <img src="{{ asset('img/gcash_qr.jpg') }}" alt="GCash QR Code" class="img-fluid" style="max-width:300px;">
-                        </div>
+                        @php
+                            $activeQr = \App\Models\GcashQrCode::where('is_active', 1)->first();
+                        @endphp
+
+                        @if($activeQr)
+                            <div class="text-center mb-3">
+                                <img src="{{ asset($activeQr->file_path) }}" 
+                                    alt="Active GCash QR Code" 
+                                    class="img-fluid rounded shadow-sm" 
+                                    style="max-width:300px;">
+                            </div>
+                        @else
+                            <div class="alert alert-secondary text-center mb-3">
+                                No active GCash QR code set.
+                            </div>
+                        @endif
+
                         
                         <div class="mb-3">
                             <label>50% Down Payment</label>

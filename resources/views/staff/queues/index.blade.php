@@ -51,7 +51,7 @@
             <div id="bookingList">
                 @forelse ($waitingQueues as $queue)
                     <div class="card shadow-sm border-left-primary mb-4 booking-card" data-court="{{ $queue->court_id }}">
-                        <div class="card-body">
+                        <div class="card-body" style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);">
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="flex-grow-1">
                                     <div class="d-flex align-items-center mb-2">

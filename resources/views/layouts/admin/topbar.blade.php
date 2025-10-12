@@ -5,6 +5,36 @@
         <i class="fa fa-bars"></i>
     </button>
 
+        <!-- Left Icons -->
+ <ul class="navbar-nav align-items-center">
+    <!-- Alerts -->
+    <li class="nav-item mx-1">
+        <a class="nav-link" href="{{ route('admin.booking_requests.index') }}">
+            <i class="fas fa-bell fa-fw"></i>
+            <span class="badge badge-danger badge-counter" id="notificationCount">0</span>
+        </a>
+    </li>
+</ul>
+
+
+<script>
+    function fetchNotifications() {
+        fetch("{{ route('admin.notifications.count') }}")
+            .then(response => response.json())
+            .then(data => {
+                let badge = document.getElementById('notificationCount');
+                badge.innerText = data.count > 0 ? data.count : '';
+            });
+    }
+
+    // Fetch every 10 seconds
+    setInterval(fetchNotifications, 10000);
+
+    // Initial load
+    fetchNotifications();
+</script>
+
+
    
 
     <!-- Spacer pushes right content -->

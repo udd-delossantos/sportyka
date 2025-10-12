@@ -14,6 +14,8 @@
 
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
+    <link rel="icon" type="image/png" href="{{ asset('img/sk-logo-2.png') }}">
+
 </head>
 
 <body class="bg-gradient-primary">

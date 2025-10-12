@@ -43,7 +43,7 @@
         <div id="bookingList">
                 @forelse($requests as $request)
                 <div class="card shadow border-left-primary mb-4 booking-card" data-status="{{ $request->status }}">
-                    <div class="card-body">
+                    <div class="card-body" style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);">
                         <!-- Header -->
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div class="flex-grow-1">

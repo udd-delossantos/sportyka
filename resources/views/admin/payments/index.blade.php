@@ -27,7 +27,7 @@
     </div>
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><strong>Payment Records</strong></h4>
+            <h4 class="mb-0"><strong>All Payments</strong></h4>
             <!-- Export buttons -->
             <div>
                 <button id="exportCsv" class="btn btn-info btn-sm">

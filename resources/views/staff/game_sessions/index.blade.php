@@ -1,4 +1,4 @@
-@extends('layouts.staff.app') @section('content')
+@extends('layouts.staff.app') @section('title', 'Sporty Ka') @section('content')
 <div class="container-fluid">
     <div class="px-0">
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
@@ -37,56 +37,65 @@
             <div class="row">
                 @php $activeSessions = $sessions->whereIn('status', ['pending', 'ongoing']); @endphp @forelse($activeSessions as $session)
                 <div class="col-md-3 mb-4">
-                    <div class="card shadow-sm">
-                        <div class="card-body pb-0">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="text-primary">
-                                    <strong>{{ $session->court->name }}</strong>
-                                </h5>
-                                <span class="badge {{ $session->status === 'ongoing' ? 'bg-success' : 'bg-warning' }} mb-3 text-white">
-                                    {{ ucfirst($session->status) }}
-                                </span>
-                            </div>
+    <div class="card shadow-sm">
+        <div class="card-body pb-0" style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-primary">
+                    <strong>{{ $session->court->name }}</strong>
+                </h5>
+                <span class="badge {{ $session->status === 'ongoing' ? 'bg-success' : 'bg-warning' }} mb-3 text-white">
+                    {{ ucfirst($session->status) }}
+                </span>
+            </div>
 
-                            <p><strong>Customer: </strong>{{ $session->customer_name }}</p>
-                            <p><strong>Type: </strong>{{ ucfirst($session->session_type) }}</p>
-                            <p><strong>Expected Duration: </strong>{{ $session->expected_hours }}h {{ $session->expected_minutes }}m</p>
-                            <p>
-                                <strong>End Time: </strong>
-                                {{ $session->end_time ? \Carbon\Carbon::parse($session->end_time)->format('h:i A') : '—' }}
-                            </p>
+            <p><strong>Customer: </strong>{{ $session->customer_name }}</p>
+            <p><strong>Type: </strong>{{ ucfirst($session->session_type) }}</p>
+            <p><strong>Expected Duration: </strong>{{ $session->expected_hours }}h {{ $session->expected_minutes }}m</p>
+            <p>
+                <strong>End Time: </strong>
+                {{ $session->end_time ? \Carbon\Carbon::parse($session->end_time)->format('h:i A') : '—' }}
+            </p>
 
-                            <p class="mb-3 text-right">
-                                @if($session->status === 'ongoing')
-                                <span id="timer-{{ $session->id }}" class="fw-bold text-primary">--:--:--</span>
-                                @else — @endif
-                            </p>
-                        </div>
+            <p class="mb-1 text-right">
+                @if($session->status === 'ongoing')
+                    <span id="timer-{{ $session->id }}" class="fw-bold text-primary">--:--:--</span>
+                @else — @endif
+            </p>
 
-                        <div class="card-footer bg-gray-100">
-                            @if($session->status === 'pending')
-                            <div class="d-flex justify-content-between">
-                                <form class="mb-0" method="POST" action="{{ route('staff.game_sessions.start', $session->id) }}">
-                                    @csrf
-                                    <button class="btn btn-sm btn-success"><i class="fas fa-play"></i> Start</button>
-                                </form>
+            @if($session->status === 'ongoing')
+            <!-- Countdown progress bar -->
+            <div class="progress mt-2 mb-3" style="height: 6px; background-color: #e9ecef;">
+                <div id="progress-bar-{{ $session->id }}" class="progress-bar bg-primary" 
+                     role="progressbar" style="width: 100%; transition: width 1s linear;"></div>
+            </div>
+            @endif
+        </div>
 
-                                <form class="mb-0" method="POST" action="{{ route('staff.game_sessions.destroy', $session->id) }}" onsubmit="return confirm('Are you sure you want to delete this session?');">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Delete</button>
-                                </form>
-                            </div>
-                            @elseif($session->status === 'ongoing')
-                            <div class="d-flex justify-content-center">
-                                <form id="end-form-{{ $session->id }}" class="mb-0" method="POST" action="{{ route('staff.game_sessions.end', $session->id) }}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-stop"></i> End Session</button>
-                                </form>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
+        <div class="card-footer bg-gray-100">
+            @if($session->status === 'pending')
+            <div class="d-flex justify-content-between">
+                <form class="mb-0" method="POST" action="{{ route('staff.game_sessions.start', $session->id) }}">
+                    @csrf
+                    <button class="btn btn-sm btn-success"><i class="fas fa-play"></i> Start</button>
+                </form>
+
+                <form class="mb-0" method="POST" action="{{ route('staff.game_sessions.destroy', $session->id) }}" onsubmit="return confirm('Are you sure you want to delete this session?');">
+                    @csrf @method('DELETE')
+                    <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i> Delete</button>
+                </form>
+            </div>
+            @elseif($session->status === 'ongoing')
+            <div class="d-flex justify-content-center">
+                <form id="end-form-{{ $session->id }}" class="mb-0" method="POST" action="{{ route('staff.game_sessions.end', $session->id) }}">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-stop"></i> End Session</button>
+                </form>
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
+
                 @empty
                 <div class="col-12">
                     <div class="alert text-center mt-0">No active sessions.</div>
@@ -355,12 +364,15 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Timers for active sessions
+// Timers for active sessions
 document.addEventListener('DOMContentLoaded', function () {
     @foreach ($activeSessions as $session)
         @if ($session->status === 'ongoing' && $session->start_time)
             (function () {
                 const sessionId = {{ $session->id }};
                 const timerEl = document.getElementById('timer-{{ $session->id }}');
+                const progressBar = document.getElementById('progress-bar-{{ $session->id }}');
+
                 const startTime = new Date("{{ \Carbon\Carbon::parse($session->start_time)->format('Y-m-d H:i:s') }}".replace(' ', 'T'));
                 const durationMs = ({{ $session->expected_hours }} * 60 + {{ $session->expected_minutes }}) * 60 * 1000;
                 const endTime = startTime.getTime() + durationMs;
@@ -371,6 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     if (remaining <= 0) {
                         timerEl.innerText = '00:00:00';
+                        if (progressBar) progressBar.style.width = '0%';
                         document.getElementById('end-form-{{ $session->id }}').submit();
                         return;
                     }
@@ -380,6 +393,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     const secs = Math.floor((remaining / 1000) % 60);
 
                     timerEl.innerText = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                    // Progress bar width calculation
+                    if (progressBar) {
+                        const percentRemaining = (remaining / durationMs) * 100;
+                        progressBar.style.width = `${percentRemaining}%`;
+                    }
                 }
 
                 updateTimer();
@@ -388,6 +407,7 @@ document.addEventListener('DOMContentLoaded', function () {
         @endif
     @endforeach
 });
+
 
 // DataTable
 $(document).ready(function () {

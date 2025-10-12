@@ -1,13 +1,17 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.htmnl">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon">
-                <img src="{{ asset('img/sk-logo-2.png') }}" alt="Logo" class="rounded" style="width: 40px;">
+                    <img src="{{ asset('img/sk-logo-2.png') }}" alt="Logo" class="rounded" style="width: 40px;">
                 </div>
-                
-                <div class="sidebar-brand-text mx-3">STAFF</div>
+
+                <div class="sidebar-brand-text mx-3 text-center">
+                    <div>SPORTY KA?</div>
+                    <small class="text-white-50" style="font-size: 12px; letter-spacing: 1px;">STAFF</small>
+                </div>
             </a>
+
 
             <!-- Divider -->
             <hr class="sidebar-divider my-0">

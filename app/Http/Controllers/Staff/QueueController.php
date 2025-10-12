@@ -145,8 +145,8 @@ class QueueController extends Controller
             ->where('status', 'ongoing')
             ->whereIn('session_type', ['walk-in', 'booking', 'queue'])
             ->where(function ($query) use ($validated) {
-                $query->where('start_time', '<=', $validated['end_time'])
-                      ->where('end_time', '>=', $validated['start_time']);
+                $query->where('start_time', '<', $validated['end_time'])
+                      ->where('end_time', '>', $validated['start_time']);
             })
             ->exists();
 
