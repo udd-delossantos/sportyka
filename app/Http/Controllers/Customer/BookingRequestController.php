@@ -20,7 +20,8 @@ class BookingRequestController extends Controller
     public function index()
     {
         $bookingRequests = BookingRequest::where('user_id', Auth::id())->latest()->paginate(5);
-        return view('customer.booking_requests.index', compact('bookingRequests'));
+        $courts = \App\Models\Court::all();
+        return view('customer.booking_requests.index', compact('bookingRequests', 'courts'));
     }
 
    public function create()
