@@ -37,10 +37,7 @@
                         <i class="fas fa-user-circle mr-1"></i> {{ Auth::user()->name }}
                     </button>
                     <div class="dropdown-menu dropdown-menu-right shadow mt-2 mt-lg-0" aria-labelledby="userDropdown">
-                        <a class="dropdown-item" href="#">
-                            <i class="fas fa-user mr-2"></i> Profile
-                        </a>
-                        <div class="dropdown-divider"></div>
+ 
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="dropdown-item text-danger">

@@ -72,7 +72,7 @@
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
                                 <div class="p-3 bg-light rounded">
-                                    <p class="small text-muted mb-1">Date</p>
+                                    <p class="small text-muted mb-1"><strong>Date</strong></p>
                                     <p class="fw-semibold mb-0">
                                         {{ \Carbon\Carbon::parse($request->booking_date)->format('F d, Y') }}
                                     </p>
@@ -80,7 +80,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="p-3 bg-light rounded">
-                                    <p class="small text-muted mb-1">Time</p>
+                                    <p class="small text-muted mb-1"><strong>Time</strong></p>
                                     <p class="fw-semibold mb-0">
                                         {{ \Carbon\Carbon::parse($request->start_time)->format('h:i A') }} - 
                                         {{ \Carbon\Carbon::parse($request->end_time)->format('h:i A') }}
@@ -89,7 +89,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="p-3 bg-light rounded">
-                                    <p class="small text-muted mb-1">Duration</p>
+                                    <p class="small text-muted mb-1"><strong>Duration</strong></p>
                                     <p class="fw-semibold mb-0">
                                         {{ $request->expected_hours }}h {{ $request->expected_minutes }}m
                                     </p>
@@ -99,22 +99,26 @@
 
                         <!-- Notes -->
                         <div class="p-3 bg-light mb-3">
-                            <p class="small text-muted mb-1">Transaction No.</p>
+                            <p class="small text-muted mb-1"><strong>Renference No.</strong></p>
                             <p class="text-dark mb-0">{{ $request->transaction_no ?? '—' }}</p>
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="card-footer text-right">
-                        <form action="{{ route('staff.booking_requests.approve', $request->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-success">Approve</button>
-                        </form>
-                        <form action="{{ route('staff.booking_requests.cancel', $request->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-danger">Cancel</button>
-                        </form>
-                    </div>
+
+    <form action="{{ route('staff.booking_requests.approve', $request->id) }}" method="POST" class="d-inline approve-form">
+        @csrf
+        <button type="submit" class="btn btn-success approve-btn">Approve</button>
+    </form>
+
+    <form action="{{ route('staff.booking_requests.cancel', $request->id) }}" method="POST" class="d-inline cancel-form">
+        @csrf
+        <button type="submit" class="btn btn-danger cancel-btn">Cancel</button>
+    </form>
+
+</div>
+
                 </div>
             @empty
             <div class="card shadow">
@@ -201,6 +205,34 @@
 @endsection
 @push('scripts')
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+    document.addEventListener("click", function (e) {
+
+        // APPROVE
+        if (e.target.closest(".approve-btn")) {
+            e.preventDefault();
+            let form = e.target.closest("form");
+            if (!form) return;
+
+            let ok = confirm("Approve this booking request?");
+            if (ok) form.submit();
+        }
+
+        // CANCEL
+        if (e.target.closest(".cancel-btn")) {
+            e.preventDefault();
+            let form = e.target.closest("form");
+            if (!form) return;
+
+            let ok = confirm("Cancel this booking request?");
+            if (ok) form.submit();
+        }
+
+    });
+
+});
+
     $(document).ready(function() {
         var table = $('#bookingRequestsTable').DataTable({
         pageLength: 10,

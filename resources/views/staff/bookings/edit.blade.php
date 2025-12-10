@@ -195,22 +195,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Booking date restrictions
-const dateInput = document.getElementById("booking_date");
-const today = new Date();
-const minDate = new Date(today); minDate.setDate(today.getDate() + 1);
-const maxDate = new Date(today); maxDate.setDate(today.getDate() + 14);
-
-function formatDate(date) {
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    const dd = String(date.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-dateInput.min = formatDate(minDate);
-dateInput.max = formatDate(maxDate);
-
 
 </script>
 

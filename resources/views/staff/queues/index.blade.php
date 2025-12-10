@@ -97,7 +97,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="p-3 bg-light rounded">
-                                        <p class="small text-muted mb-1">Transaction No.</p>
+                                        <p class="small text-muted mb-1">Reference No.</p>
                                         <p class="fw-semibold mb-0">
                                             {{ $queue->transaction_no ?? '—' }}
                                         </p>
@@ -161,7 +161,7 @@
                             <th>Time</th>
                             <th>Duration</th>
                             <th>Amount</th>
-                            <th>Transaction No</th>
+                            <th>Reference No</th>
                             <th>Created By</th>
                             <th class="text-center">Status</th>
          
@@ -179,10 +179,16 @@
                                 <td>{{ $queue->transaction_no ?? 'N/A' }}</td>
                                 <td>{{ $queue->staff->name ?? '—' }}</td>
                                 <td class="text-center">
-                                    <span class="badge bg-{{ $queue->status === 'called' ? 'success' : 'danger' }} text-light">
-                                        {{ ucfirst($queue->status) }}
-                                    </span>
+                                    @if($queue->status === 'called')
+                                        <span class="badge bg-success text-light">{{ ucfirst($queue->status) }}</span>
+                                    @elseif($queue->status === 'completed')
+                                        <span class="badge bg-info text-light">{{ ucfirst($queue->status) }}</span>
+                                        
+                                    @else
+                                        <span class="badge bg-danger text-light">{{ ucfirst($queue->status) }}</span>
+                                    @endif
                                 </td>
+
                           
                             </tr>
                         @endforeach

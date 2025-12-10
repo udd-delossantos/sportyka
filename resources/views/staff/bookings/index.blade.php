@@ -60,7 +60,7 @@
                                 <th>Time</th>
                                 <th>Duration</th>
                                 <th>Amount</th>
-                                <th>Transaction No</th>
+                                <th>Reference No.</th>
                                 <th>Approved By</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Action</th>
@@ -80,15 +80,20 @@
                                     <td>₱{{ number_format($booking->amount, 2) }}</td>
                                     <td>{{ $booking->transaction_no ?? '—' }}</td>
                                     <td>{{ $booking->staff->name ?? '—' }}</td>
-                                    <td class="text-light text-center">
-                                        <span class="badge bg-{{ 
-                                            $booking->status === 'pending' ? 'warning' : 
-                                            ($booking->status === 'confirmed' ? 'success' : 
-                                            ($booking->status === 'completed' ? 'info' : 'danger')) 
-                                        }}">
-                                            {{ ucfirst($booking->status) }}
-                                        </span>
-                                    </td>
+                                <td class="text-light text-center">
+                                    @if ($booking->status === 'pending')
+                                        <span class="badge bg-warning">{{ ucfirst($booking->status) }}</span>
+                                    @elseif ($booking->status === 'confirmed')
+                                        <span class="badge bg-success">{{ ucfirst($booking->status) }}</span>
+                                    @elseif ($booking->status === 'ongoing')
+                                        <span class="badge bg-success">{{ ucfirst($booking->status) }}</span>
+                                    @elseif ($booking->status === 'completed')
+                                        <span class="badge bg-info">{{ ucfirst($booking->status) }}</span>
+                                    @else
+                                        <span class="badge bg-danger">{{ ucfirst($booking->status) }}</span>
+                                    @endif
+                                </td>
+
                                     <td class="text-center">
                                         @if($booking->status === 'confirmed')
                                             <a href="{{ route('staff.bookings.edit', $booking->id) }}" class="btn btn-sm btn-warning">Move</a>

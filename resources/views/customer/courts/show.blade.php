@@ -40,7 +40,11 @@
             <h2 class="mb-4"><strong class="text-success">₱{{ number_format($court->hourly_rate, 2) }}</strong>
                 <span style="font-size: 0.6em;"> per hour</span>
             </h2>
-            <a href="{{ route('customer.booking_requests.create') }}" class="btn btn-book-now btn-primary">Book Now</a>
+            <a href="{{ route('customer.booking_requests.create', ['court_id' => $court->id]) }}" 
+            class="btn btn-book-now btn-primary">
+            Book Now
+            </a>
+
             <a href="{{ route('customer.dashboard') }}" class="btn btn-secondary">Back</a>
         </div>
     </div>

@@ -67,14 +67,17 @@
                             <td>{{ $session->end_time ? \Carbon\Carbon::parse($session->end_time)->format('h:i A') : '—' }}</td>
                             <td>{{ $session->staff->name ?? 'N/A' }}</td>
                             <td class="text-light text-center">
-                                <span class="badge bg-{{ 
-                                    $session->status === 'pending' ? 'warning' : 
-                                    ($session->status === 'in_progress' ? 'success' : 
-                                    ($session->status === 'completed' ? 'info' : 'danger')) 
-                                }}">
-                                    {{ ucfirst($session->status) }}
-                                </span>
+                                @if ($session->status === 'pending')
+                                    <span class="badge bg-warning">{{ ucfirst($session->status) }}</span>
+                                @elseif ($session->status === 'completed')
+                                    <span class="badge bg-info">{{ ucfirst($session->status) }}</span>
+                                @elseif ($session->status === 'ongoing')
+                                    <span class="badge bg-success">{{ ucfirst($session->status) }}</span>
+                                @else
+                                    <span class="badge bg-danger">{{ ucfirst($session->status) }}</span>
+                                @endif
                             </td>
+
                         </tr>
                         @endforeach
                     </tbody>

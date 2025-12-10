@@ -88,7 +88,10 @@
             <div class="d-flex justify-content-center">
                 <form id="end-form-{{ $session->id }}" class="mb-0" method="POST" action="{{ route('staff.game_sessions.end', $session->id) }}">
                     @csrf
-                    <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-stop"></i> End Session</button>
+                    <button type="submit" class="btn btn-sm btn-danger end-session-btn">
+    <i class="fas fa-stop"></i> End Session
+</button>
+
                 </form>
             </div>
             @endif
@@ -170,7 +173,7 @@
                                 )
                                     <form class="mb-0 flex-fill" method="POST" action="{{ route('staff.bookings.startSession', $booking->id) }}">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-primary w-100">Start Session</button>
+                                        <button type="submit" class="btn btn-sm btn-primary start-booking-btn w-100">Start Session</button>
                                     </form>
                                 @endif
                             </div>
@@ -232,7 +235,7 @@
                         <div class="d-flex w-100">
                             <form class="mb-0 flex-fill" action="{{ route('staff.queues.call', $queue->id) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="btn btn-primary btn-sm w-100">Start Session</button>
+                                <button type="submit" class="btn btn-primary start-queue-btn btn-sm w-100">Start Session</button>
                             </form>
                         </div>
                         @endif
@@ -407,6 +410,41 @@ document.addEventListener('DOMContentLoaded', function () {
         @endif
     @endforeach
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".end-session-btn").forEach(btn => {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (confirm("Are you sure you want to end this session?")) {
+                this.closest("form").submit();
+            }
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".start-queue-btn").forEach(btn => {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (confirm("Are you sure you want to start this queue?")) {
+                this.closest("form").submit();
+            }
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".start-booking-btn").forEach(btn => {
+        btn.addEventListener("click", function (e) {
+            e.preventDefault();
+            if (confirm("Are you sure you want to start this queue?")) {
+                this.closest("form").submit();
+            }
+        });
+    });
+});
+
+
 
 
 // DataTable

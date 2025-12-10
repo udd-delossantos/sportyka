@@ -31,7 +31,6 @@
                 <table class="table table-bordered table-hover" id="dataTable">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Court Name</th>
             <th>Sport Type</th>
             <th>Rate</th>
@@ -44,7 +43,6 @@
     <tbody>
         @foreach ($courts as $court)
         <tr>
-            <td>{{ $court->id }}</td>
             <td>{{ $court->name }}</td>
             <td>{{ $court->sport }}</td>
             <td>₱{{ number_format($court->hourly_rate, 2) }}</td>

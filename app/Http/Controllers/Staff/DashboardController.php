@@ -110,7 +110,8 @@ class DashboardController extends Controller
                 'bookingCount',
                 'walkinCount',
                 'totalCash',
-                'totalGcash'
+                'totalGcash',
+                'overallConfirmed'
             )
         );
     }

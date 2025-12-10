@@ -22,7 +22,7 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <div class="px-4 py-5 mb-4 text-center shadow rounded-4 bg-light " style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);">
+    <div class="px-4 py-5 mb-4 text-center shadow-sm rounded-4 bg-light " style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);">
       <img class="d-block mx-auto mb-4 rounded-circle border border-3 border-primary shadow-sm" 
         src="{{ asset('img/sk-logo.png') }}" 
         alt="Sporty Ka Logo" 
@@ -31,7 +31,7 @@
 
     <h2 class="text-primary">Dear Customer</h2>
     <div class="px-5">
-        <p class="lead mb-4">Before booking, please note that a 50% down payment is required, and GCash payments must include a valid 13-digit transaction number. 
+        <p class="lead mb-4">Before booking, please note that a 50% down payment is required, and GCash payments must include a valid 13-digit reference number. 
        Double bookings are not allowed, so check your court, date, and time carefully. Arrive at least 15 minutes early, and don’t forget to bring 
        your own gear and accessories (rackets, balls, shuttlecocks, etc.) as these are not included in the rental.</p>
 
@@ -49,18 +49,29 @@
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
-                            @foreach($courts as $court)
-                            <div class="col-md-4">
-                                <label class="w-100">
-                                    <input type="radio" name="court_id" value="{{ $court->id }}" data-rate="{{ $court->hourly_rate }}" class="btn-check court-radio" required>
-                                    <div class="p-3 border rounded text-center court-option h-100 hover-shadow">
-                                        <div class="fw-bold fs-5">{{ $court->name }}</div>
-                                        <div class="text-muted">{{ $court->sport }}</div>
-                                        <div class="text-primary fw-bold">₱{{ $court->hourly_rate }}/hour</div>
-                                    </div>
-                                </label>
-                            </div>
-                            @endforeach
+                            @php
+    $selectedCourt = request('court_id'); 
+@endphp
+
+@foreach($courts as $court)
+    <div class="col-md-4">
+        <label class="w-100">
+            <input type="radio" name="court_id" 
+                   value="{{ $court->id }}" 
+                   data-rate="{{ $court->hourly_rate }}"
+                   class="btn-check court-radio"
+                   {{ $selectedCourt == $court->id ? 'checked' : '' }}
+            >
+
+            <div class="p-3 border rounded text-center court-option h-100 hover-shadow">
+                <div class="fw-bold fs-5">{{ $court->name }}</div>
+                <div class="text-muted">{{ $court->sport }}</div>
+                <div class="text-primary fw-bold">₱{{ $court->hourly_rate }}/hour</div>
+            </div>
+        </label>
+    </div>
+@endforeach
+
                         </div>
                     </div>
                 </div>
@@ -158,7 +169,7 @@
                             <input type="text" id="computedAmount" class="form-control fw-bold" readonly>
                         </div>
                         <div class="mb-3">
-                            <label for="transaction_no">GCash Transaction No.</label>
+                            <label for="transaction_no">GCash Reference No.</label>
                             <input type="text" name="transaction_no" id="transaction_no" class="form-control" maxlength="13" pattern="\d{13}">
                         </div>
                         
@@ -580,5 +591,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // initialize
     showStep(currentStep);
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const selected = document.querySelector('.court-radio:checked');
+    if (selected) {
+        document.getElementById('nextBtn').click(); 
+    }
+});
+
 </script>
 @endpush

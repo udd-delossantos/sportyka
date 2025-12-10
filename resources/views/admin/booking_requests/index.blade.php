@@ -62,7 +62,7 @@
                             <th>Time</th>
                             <th>Duration</th>
                             <th>Amount</th>
-                            <th>Transaction No</th>
+                            <th>Reference No.</th>
                             <!--<th>Approved By</th>-->
                             <th class="text-center">Status</th>
                         </tr>

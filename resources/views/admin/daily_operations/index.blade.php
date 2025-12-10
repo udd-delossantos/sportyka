@@ -151,6 +151,7 @@ $(document).ready(function () {
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
             // bottom with pagination aligned right
             '<"bottom d-flex justify-content-between align-items-center"ip>',
+        order: [[0, 'desc']],
         buttons: [
             {
                 extend: 'csvHtml5',

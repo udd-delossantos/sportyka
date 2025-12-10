@@ -12,7 +12,7 @@ class CourtController extends Controller
 {
     public function index()
     {
-        $courts = Court::all();
+        $courts = Court::orderBy('name', 'asc')->get();
         return view('admin.courts.index', compact('courts'));
     }
 

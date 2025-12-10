@@ -55,7 +55,7 @@
                             <th>Start Time</th>
                             <th>End Time</th>
                             <th>Amount Paid</th>
-                            <th>Transaction No.</th>
+                            <th>Reference No.</th>
                             <th>Created By</th>
                             <th class="text-center">Status</th>
                         </tr>

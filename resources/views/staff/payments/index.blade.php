@@ -48,7 +48,7 @@
                             <th>Session Type</th>
                             <th>Amount Paid</th>
                             <th>Payment Method</th>
-                            <th>Transaction No.</th>
+                            <th>Reference No.</th>
                             <th>Recorded By</th>
                             <th>Paid At</th>
                         </tr>

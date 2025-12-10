@@ -54,6 +54,8 @@
                             <th>Start Time</th>
                             <th>End Time</th>
                             <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Ref No.</th>
                             <th>Recorded By</th>
                             <th>Date</th>
                         </tr>
@@ -68,6 +70,10 @@
                             <td>{{ \Carbon\Carbon::parse($payment->session->start_time)->format('h:i A') }}</td>
                             <td>{{ \Carbon\Carbon::parse($payment->session->end_time)->format('h:i A') }}</td>               
                             <td>{{ number_format($payment->amount, 2) }}</td>
+                             <td>
+                                @if (strtolower($payment->payment_method) === 'gcash') GCash @else {{ ucfirst($payment->payment_method) }} @endif
+                            </td>
+                            <td>{{ $payment->transaction_no ?? 'N/A'}}</td>
                             <td>{{ $payment->staff->name ?? 'N/A' }}</td>
                             <td>{{ $payment->created_at->format('M d, Y h:i A') ?? ''}}</td>
                         </tr>

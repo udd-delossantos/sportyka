@@ -84,7 +84,7 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="mb-3">
-                            <label>GCash Transaction No. (If GCash Payment Only)</label>
+                            <label>GCash Reference No. (If GCash Payment Only)</label>
                             <input type="text" name="transaction_no" class="form-control" maxlength="13" minlength="13" value="{{ old('transaction_no') }}">
                         </div>
                     </div>

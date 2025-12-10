@@ -12,7 +12,7 @@
         </div>
     </div>
   
-  <div class="px-4 py-5 mb-5 text-center shadow rounded-4 bg-primary" style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);">
+  <div class="px-4 py-5 mb-5 text-center shadow-sm rounded-4 bg-primary" style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);">
         <img class="d-block mx-auto mb-4 rounded-circle border border-3 border-primary shadow-sm" 
         src="{{ asset('img/sk-logo.png') }}" 
         alt="Sporty Ka Logo" 

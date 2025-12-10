@@ -53,7 +53,13 @@ class PaymentController extends Controller
             ->where('daily_operation_id', $active->id)
             ->sum('amount');
 
-        $totalGCash = $gcashPayments + $gcashFromQueue;
+  
+
+        $confirmedBookingsTotal = \App\Models\Booking::whereDate('updated_at', Carbon::today()) // always today's date
+            ->where('status', 'confirmed')
+            ->sum('amount');
+
+        $totalGCash = $gcashPayments + $gcashFromQueue + $confirmedBookingsTotal;
 
         // 3. Total amounts collected today
         $totalCollected = $totalCash + $totalGCash;

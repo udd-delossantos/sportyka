@@ -36,5 +36,13 @@ class DatabaseSeeder extends Seeder
             'role' => 'customer',
         ]);
 
+         User::factory()
+            ->count(10)
+            ->state([
+                'role' => 'customer',
+                'password' => Hash::make('customer123'), // same password for all
+            ])
+            ->create();
+
     }
 }        

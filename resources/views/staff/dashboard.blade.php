@@ -81,7 +81,7 @@
                                 GCash (Upfront)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-light">
-                                ₱{{ number_format($confirmedBookingsTotal , 2) }}
+                                ₱{{ number_format($overallConfirmed , 2) }}
                             </div>
 
                         </div>
@@ -258,7 +258,7 @@
                     <li class="list-group-item">Total Walk-in Sessions: {{ $walkinCount }}</li>
                     <li class="list-group-item">Total Booking Sessions: {{ $bookingCount }}</li>
                     <li class="list-group-item bg-light"><strong>Overall Total Sessions: {{ $bookingCount + $walkinCount }}</strong></li>
-                    <li class="list-group-item">GCash (Upfront): ₱{{ number_format($confirmedBookingsTotal, 2) }}</li>
+                    <li class="list-group-item">GCash (Upfront): ₱{{ number_format($overallConfirmed , 2) }}</li>
                     <li class="list-group-item">
                         Total GCash (Cashier): ₱{{ number_format($overallGcash, 2) }}
                     </li>
