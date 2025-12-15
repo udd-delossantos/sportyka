@@ -49,8 +49,9 @@ class GameSessionController extends Controller
                 ->where('staff_id', Auth::id())
                 ->where('daily_operation_id', $active->id)
                 ->where('status', 'completed')
-                ->latest()
+                ->orderBy('id', 'desc')
                 ->get();
+
 
             $bookings = Booking::with('court', 'user')
                 ->where('booking_date', now()->toDateString())
@@ -90,7 +91,35 @@ class GameSessionController extends Controller
     public function create()
     {
         $courts = Court::all();
-        return view('staff.game_sessions.create', compact('courts'));
+
+         $queuesByCourt = Queue::where('status', 'waiting')
+        ->get()
+        ->groupBy('court_id')
+        ->map(function ($queues) {
+            return $queues->map(function ($q) {
+                return [
+                    'customer'   => $q->customer_name,
+                    'start_time' => Carbon::parse($q->start_time)->format('h:i A'),
+                    'end_time'   => Carbon::parse($q->end_time)->format('h:i A'),
+                ];
+            });
+        });
+
+         $bookedByCourt = Booking::whereIn('status', ['confirmed'])
+        ->whereDate('booking_date', now()->toDateString())
+        ->orderBy('start_time')
+        ->get()
+        ->groupBy('court_id')
+        ->map(function ($bookings) {
+            return $bookings->map(function ($b) {
+                return [
+                    'customer'   => $b->user->name ?? 'Booking',
+                    'start_time' => Carbon::parse($b->start_time)->format('h:i A'),
+                    'end_time'   => Carbon::parse($b->end_time)->format('h:i A'),
+                ];
+            });
+        });
+        return view('staff.game_sessions.create', compact('courts', 'queuesByCourt', 'bookedByCourt'));
     }
 
     public function store(Request $request)

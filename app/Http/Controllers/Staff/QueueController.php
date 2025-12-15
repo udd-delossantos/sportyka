@@ -81,7 +81,7 @@ class QueueController extends Controller
 
     // Get all waiting queues grouped by court id
     $queuesByCourt = \App\Models\Queue::where('status', 'waiting')
-        ->where('daily_operation_id', $active->id)
+       // ->where('daily_operation_id', $active->id)
         ->get()
         ->groupBy('court_id')
         ->map(function ($group) {
@@ -100,7 +100,42 @@ class QueueController extends Controller
     // Convert to array (so @json works nicely in blade)
     $queuesByCourt = $queuesByCourt->toArray();
 
-    return view('staff.queues.create', compact('courts', 'queuesByCourt'));
+    // ===============================
+// Ongoing sessions by court
+// ===============================
+$ongoingByCourt = GameSession::where('status', 'ongoing')
+    ->whereDate('session_date', now()->toDateString())
+    ->get()
+    ->mapWithKeys(function ($session) {
+        return [
+            $session->court_id => [
+                'customer' => $session->customer_name,
+                'end_time' => Carbon::parse($session->end_time)->format('h:i A'),
+            ]
+        ];
+    })
+    ->toArray();
+
+
+    
+
+$bookedByCourt = Booking::whereIn('status', ['confirmed', 'completed'])
+    ->whereDate('booking_date', now()->toDateString())
+    ->orderBy('start_time')
+    ->get()
+    ->groupBy('court_id')
+    ->map(function ($bookings) {
+        return $bookings->map(function ($b) {
+            return [
+                'customer'   => $b->user->name ?? 'Walk-in',
+                'start_time' => Carbon::parse($b->start_time)->format('h:i A'),
+                'end_time'   => Carbon::parse($b->end_time)->format('h:i A'),
+            ];
+        });
+    });
+
+
+    return view('staff.queues.create', compact('courts', 'queuesByCourt', 'ongoingByCourt', 'bookedByCourt'));
 }
 
 
@@ -141,14 +176,18 @@ class QueueController extends Controller
         }
 
         $hasSessionConflict = GameSession::where('court_id', $validated['court_id'])
-            ->whereDate('start_time', now()->toDateString())
-            ->where('status', 'ongoing')
-            ->whereIn('session_type', ['walk-in', 'booking', 'queue'])
-            ->where(function ($query) use ($validated) {
-                $query->where('start_time', '<', $validated['end_time'])
-                      ->where('end_time', '>', $validated['start_time']);
-            })
-            ->exists();
+    ->whereDate('start_time', now()->toDateString())
+    ->where('status', 'ongoing')
+    ->whereIn('session_type', ['walk-in', 'booking', 'queue'])
+    ->where(function ($query) use ($validated) {
+        $query
+            // Case 1: ongoing session with NO end_time yet
+            ->whereNull('end_time')
+            ->where('start_time', '<=', $validated['start_time']);
+    })
+    ->exists();
+
+
 
         if ($hasSessionConflict) {
             return redirect()->back()->with('error', 'There is already an ongoing session for this court.');

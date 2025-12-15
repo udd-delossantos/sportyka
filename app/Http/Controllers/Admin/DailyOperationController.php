@@ -12,7 +12,7 @@ class DailyOperationController extends Controller
 {
     public function index()
     {
-        $operations = DailyOperation::orderBy('date', 'desc')->get();
+        $operations = DailyOperation::orderBy('created_at', 'desc')->get();
         $active = DailyOperation::where('status', 'open')->first();
 
         $operationPayments = [];
@@ -47,7 +47,6 @@ class DailyOperationController extends Controller
                 // Confirmed bookings for this court + operation date
                 $confirmedBookingsGcash = \App\Models\Booking::where('court_id', $court->id)
                     ->whereDate('created_at', $operation->date) // use created_at, not updated_at
-                    ->where('status', 'confirmed')
                     ->sum('amount');
 
                 // Add everything
@@ -210,9 +209,9 @@ class DailyOperationController extends Controller
 
     // ✅ Bookings confirmed today (calendar date, not operation date)
     $confirmedBookingsTotal = \App\Models\Booking::where('court_id', $court->id)
-        ->whereDate('updated_at', Carbon::today()) // always today's date
-        ->where('status', 'confirmed')
-        ->sum('amount'); 
+    ->whereDate('created_at', $operation->date) // ✅ business day
+    ->sum('amount');
+
 
 
     // Combine
@@ -257,7 +256,8 @@ class DailyOperationController extends Controller
         'bookingCount',
         'walkinCount',
         'totalCash',
-        'totalGcash'
+        'totalGcash',
+        'overallConfirmed'
     ));
 }
 

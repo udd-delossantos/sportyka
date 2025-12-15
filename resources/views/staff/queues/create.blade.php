@@ -1,107 +1,129 @@
 @extends('layouts.staff.app')
 
 @section('content')
-<div class="container">
+<div class="container-fluid">
     <form action="{{ route('staff.queues.store') }}" method="POST">
         @csrf
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card shadow mb-4">
+                        <div class="card-header pb-0">
+                            <h5><strong>Add Customer to Queue</strong></h5>
+                        </div>
+                        <div class="card-body">
+                            @if(session('error'))
+                                <div class="alert alert-danger">{{ session('error') }}</div>
+                            @endif
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label>Court</label>
+                                        <select name="court_id" class="form-control" required id="courtSelect">
+                                            @foreach($courts as $court)
+                                                <option value="{{ $court->id }}" data-rate="{{ $court->hourly_rate }}">
+                                                    {{ $court->name }} (₱{{ $court->hourly_rate }}/hr)
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label>Customer Name</label>
+                                        <input type="text" name="customer_name" class="form-control" required value="{{ old('customer_name') }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="hours">Hours</label>
+                                    <select name="hours" class="form-control" required>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="minutes">Minutes</label>
+                                    <select name="minutes" class="form-control" required>
+                                        <option value="0">0</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label>Start Time</label>
+                                        <input type="time" name="start_time" class="form-control" required value="{{ old('start_time') }}">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label>End Time</label>
+                                        <input type="time" name="end_time" class="form-control" required value="{{ old('end_time') }}" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label>GCash Ref No. (Leave blank if cash)</label>
+                                        <input type="text" name="transaction_no" class="form-control" maxlength="13" minlength="13" value="{{ old('transaction_no') }}">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label>50% Down Payment</label>
+                                        <input type="text" id="computedAmount" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-success btn-sm">Add to Queue</button>
+                            <a href="{{ route('staff.queues.index') }}" class="btn btn-secondary btn-sm">Back</a>
+                        </div>
+                    </div>
+
+            </div>
+            <div class="col-md-5">
+                        <div class="card mb-4 shadow" id="queueContainer" style="display:none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><strong>Queue – Waiting Customers</strong></h5>
+                        <small class="text-muted" id="queueCourtBadge" style="display:none;"></small>
+                    </div>
+                    <div class="card-body" id="queueList">
+                        <p class="text-muted mb-0">Select a court to view waiting customers.</p>
+                    </div>
+                </div>
+                <!-- Booked slots card -->
+                <div class="card mb-4 shadow" id="bookedContainer" style="display:none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><strong>Booked Slots</strong></h5>
+                        <small class="text-muted" id="bookedCourtBadge" style="display:none;"></small>
+                    </div>
+                    <div class="card-body" id="bookedList">
+                        <p class="text-muted mb-0">Select a court to view booked slots.</p>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
 
         <!-- Queue display card -->
-        <div class="card mb-4 shadow" id="queueContainer" style="display:none;">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><strong>Queue – Waiting Customers</strong></h5>
-                <small class="text-muted" id="queueCourtBadge" style="display:none;"></small>
-            </div>
-            <div class="card-body" id="queueList">
-                <p class="text-muted mb-0">Select a court to view waiting customers.</p>
-            </div>
-        </div>
+      
 
-        <div class="card shadow mb-4">
-            <div class="card-header pb-0">
-                <h5><strong>Add Customer to Queue</strong></h5>
-            </div>
-            <div class="card-body">
-                @if(session('error'))
-                    <div class="alert alert-danger">{{ session('error') }}</div>
-                @endif
-
-                <div class="row">
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <label>Court</label>
-                            <select name="court_id" class="form-control" required id="courtSelect">
-                                @foreach($courts as $court)
-                                    <option value="{{ $court->id }}" data-rate="{{ $court->hourly_rate }}">
-                                        {{ $court->name }} (₱{{ $court->hourly_rate }}/hr)
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <label>Customer Name</label>
-                            <input type="text" name="customer_name" class="form-control" required value="{{ old('customer_name') }}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="hours">Hours</label>
-                        <select name="hours" class="form-control" required>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="minutes">Minutes</label>
-                        <select name="minutes" class="form-control" required>
-                            <option value="0">0</option>
-                            <option value="30">30</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <label>Start Time</label>
-                            <input type="time" name="start_time" class="form-control" required value="{{ old('start_time') }}">
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <label>End Time</label>
-                            <input type="time" name="end_time" class="form-control" required value="{{ old('end_time') }}" readonly>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <label>GCash Reference No. (If GCash Payment Only)</label>
-                            <input type="text" name="transaction_no" class="form-control" maxlength="13" minlength="13" value="{{ old('transaction_no') }}">
-                        </div>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <label>50% Down Payment</label>
-                            <input type="text" id="computedAmount" class="form-control" readonly>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="card-footer">
-                <button type="submit" class="btn btn-success btn-sm">Add to Queue</button>
-                <a href="{{ route('staff.queues.index') }}" class="btn btn-secondary btn-sm">Back</a>
-            </div>
-        </div>
+        
     </form>
 </div>
 @endsection
@@ -111,6 +133,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     // ====== Data from controller ======
     const queuesByCourt = @json($queuesByCourt);
+    const ongoingByCourt = @json($ongoingByCourt ?? []); // ✅ added, safe even if empty
+    const bookedByCourt = @json($bookedByCourt ?? []);
+
 
     // ====== DOM elements ======
     const courtSelect = document.getElementById('courtSelect');
@@ -124,103 +149,202 @@ document.addEventListener('DOMContentLoaded', function () {
     const endTimeInput = document.querySelector('input[name="end_time"]');
     const computedAmount = document.getElementById('computedAmount');
 
-    // compute down payment
+    const bookedContainer = document.getElementById('bookedContainer');
+const bookedList = document.getElementById('bookedList');
+const bookedCourtBadge = document.getElementById('bookedCourtBadge');
+
+
+    function getCurrentTime() {
+        const now = new Date();
+        return now.getHours() * 60 + now.getMinutes();
+    }
+
+    function timeToMinutes(time) {
+        if (!time) return null;
+        const [h, m] = time.split(':').map(Number);
+        return (h * 60) + m;
+    }
+
+    function minutesToTime(mins) {
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    }
+
+    function ampmTo24(time) {
+        if (!time) return null;
+        const match = time.match(/(\d+):(\d+)\s?(AM|PM)/i);
+        if (!match) return null;
+
+        let h = parseInt(match[1]);
+        const m = match[2];
+        const mer = match[3].toUpperCase();
+
+        if (mer === 'PM' && h !== 12) h += 12;
+        if (mer === 'AM' && h === 12) h = 0;
+
+        return `${String(h).padStart(2,'0')}:${m}`;
+    }
+
+    function enforceFutureTime() {
+        const selectedMinutes = timeToMinutes(startTimeInput.value);
+        const nowMinutes = getCurrentTime();
+
+        if (selectedMinutes !== null && selectedMinutes < nowMinutes) {
+            alert('You cannot select a past time.');
+            startTimeInput.value = '';
+            endTimeInput.value = '';
+            return;
+        }
+
+        updateEndTime();
+    }
+
     function computeAmount() {
         const hours = parseInt(hoursInput.value) || 0;
         const minutes = parseInt(minutesInput.value) || 0;
         const selectedCourt = courtSelect.options[courtSelect.selectedIndex];
         const rate = parseFloat(selectedCourt.getAttribute('data-rate'));
 
-        if (isNaN(rate)) {
-            computedAmount.value = '';
-            return;
-        }
+        if (isNaN(rate)) return computedAmount.value = '';
 
         const totalMinutes = (hours * 60) + minutes;
-        if (totalMinutes <= 0) {
-            computedAmount.value = '';
-            return;
-        }
+        if (totalMinutes <= 0) return computedAmount.value = '';
 
-        const ratePerMinute = rate / 60;
-        const total = totalMinutes * ratePerMinute * 0.5; // 50% down
+        const total = (rate / 60) * totalMinutes * 0.5;
         computedAmount.value = '₱' + total.toFixed(2);
     }
 
-    // compute end time from start + duration
     function updateEndTime() {
-        const startTime = startTimeInput.value;
-        const hours = parseInt(hoursInput.value) || 0;
-        const minutes = parseInt(minutesInput.value) || 0;
+        if (!startTimeInput.value) return;
 
-        if (!startTime) return;
+        let [h, m] = startTimeInput.value.split(':').map(Number);
+        let d = new Date();
+        d.setHours(h, m, 0);
+        d.setMinutes(d.getMinutes() + (hoursInput.value * 60) + parseInt(minutesInput.value));
 
-        let [startHour, startMinute] = startTime.split(':').map(Number);
-        let startDate = new Date();
-        startDate.setHours(startHour, startMinute, 0);
-
-        startDate.setMinutes(startDate.getMinutes() + (hours * 60) + minutes);
-
-        let endHour = String(startDate.getHours()).padStart(2, '0');
-        let endMinute = String(startDate.getMinutes()).padStart(2, '0');
-        endTimeInput.value = `${endHour}:${endMinute}`;
+        endTimeInput.value = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
 
-    // escape helper
-    function escapeHtml(unsafe) {
-        return String(unsafe)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, s => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+        }[s]));
     }
 
-    // Render queue for selected court
     function renderQueue() {
         const courtId = courtSelect.value;
-        const selectedCourtName = courtSelect.options[courtSelect.selectedIndex].text.split(' (')[0] || 'Court';
+        const courtName = courtSelect.options[courtSelect.selectedIndex].text.split(' (')[0];
 
-        queueCourtBadge.textContent = `for ${selectedCourtName}`;
+        queueCourtBadge.textContent = `for ${courtName}`;
         queueCourtBadge.style.display = 'inline-block';
-
-        const waiting = (queuesByCourt[courtId] && Array.isArray(queuesByCourt[courtId])) ? queuesByCourt[courtId] : [];
-
         queueContainer.style.display = 'block';
 
+        queueList.innerHTML = '';
+
+        if (ongoingByCourt[courtId]) {
+            const ongoing = document.createElement('div');
+            ongoing.className = 'alert alert-success mb-3';
+            ongoing.innerHTML = `
+                <strong>Ongoing Session</strong>
+                — Ends at: <strong>${escapeHtml(ongoingByCourt[courtId].end_time)}</strong>
+            `;
+            queueList.appendChild(ongoing);
+        }
+
+        const waiting = queuesByCourt[courtId] || [];
         if (waiting.length === 0) {
-            queueList.innerHTML = `<p class="text-success mb-0">No waiting customers for ${selectedCourtName}. </p>`;
+            queueList.innerHTML += `<p class="text-success mb-0">No waiting customers.</p>`;
             return;
         }
 
-        const frag = document.createDocumentFragment();
         waiting.forEach(q => {
-            const item = document.createElement('div');
-            item.className = 'alert alert-info py-2 mb-2';
-            item.innerHTML = `<strong>${escapeHtml(q.customer)}</strong> 
-                              <span class="text-muted"> — ${escapeHtml(q.start_time)} to ${escapeHtml(q.end_time)}</span>`;
-            frag.appendChild(item);
+            const div = document.createElement('div');
+            div.className = 'alert alert-warning py-2 mb-2';
+            div.innerHTML = `<strong>${escapeHtml(q.customer)}</strong>
+                             <span class="text-muted"> — ${escapeHtml(q.start_time)} to ${escapeHtml(q.end_time)}</span>`;
+            queueList.appendChild(div);
         });
-
-        queueList.innerHTML = '';
-        queueList.appendChild(frag);
     }
 
-    // Attach listeners
+    /* ================================
+       ✅ AUTO-FILL START TIME (ADD ONLY)
+    ================================= */
+    function autoFillStartTime() {
+        const courtId = courtSelect.value;
+        let candidates = [];
+
+        if (ongoingByCourt[courtId]) {
+            const t = ampmTo24(ongoingByCourt[courtId].end_time);
+            if (t) candidates.push(timeToMinutes(t));
+        }
+
+        if (queuesByCourt[courtId]?.length) {
+            const lastQueue = queuesByCourt[courtId][queuesByCourt[courtId].length - 1];
+            const t = ampmTo24(lastQueue.end_time);
+            if (t) candidates.push(timeToMinutes(t));
+        }
+
+        candidates.push(getCurrentTime());
+
+        const finalMinutes = Math.max(...candidates);
+        startTimeInput.value = minutesToTime(finalMinutes);
+
+        startTimeInput.dispatchEvent(new Event('input'));
+    }
+
+    /* ====== EXISTING LISTENERS ====== */
     courtSelect.addEventListener('change', () => {
         computeAmount();
         renderQueue();
+            renderBookedSlots(); // ✅ ADD
+
+        autoFillStartTime(); // ✅ added
     });
 
-    [hoursInput, minutesInput].forEach(input => {
-        input.addEventListener('change', () => { computeAmount(); updateEndTime(); });
-    });
-    startTimeInput.addEventListener('input', updateEndTime);
+    [hoursInput, minutesInput].forEach(i =>
+        i.addEventListener('change', () => { computeAmount(); updateEndTime(); })
+    );
 
-    // initial run
+    startTimeInput.addEventListener('change', enforceFutureTime);
+    startTimeInput.addEventListener('input', enforceFutureTime);
+
+
+    function renderBookedSlots() {
+    const courtId = courtSelect.value;
+    const courtName = courtSelect.options[courtSelect.selectedIndex].text.split(' (')[0];
+
+    bookedCourtBadge.textContent = `for ${courtName}`;
+    bookedCourtBadge.style.display = 'inline-block';
+    bookedContainer.style.display = 'block';
+
+    bookedList.innerHTML = '';
+
+    const booked = bookedByCourt[courtId] || [];
+
+    if (booked.length === 0) {
+        bookedList.innerHTML = `<p class="text-success mb-0">No booked slots.</p>`;
+        return;
+    }
+
+    booked.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'alert alert-warning py-2 mb-2';
+        div.innerHTML = `
+            <strong>${escapeHtml(b.customer)}</strong>
+            <span class="text-muted"> — ${escapeHtml(b.start_time)} to ${escapeHtml(b.end_time)}</span>
+        `;
+        bookedList.appendChild(div);
+    });
+}
+
+
+    /* ====== INITIAL RUN ====== */
     computeAmount();
-    updateEndTime();
     renderQueue();
+    autoFillStartTime(); // ✅ added
+    renderBookedSlots();
+
 });
 </script>
 @endpush

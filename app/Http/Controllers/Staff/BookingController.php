@@ -32,7 +32,7 @@ class BookingController extends Controller
         $bookings = Booking::with(['user', 'court'])->latest()->get();
 
         // Pending requests for staff review
-        $requests = BookingRequest::with(['user', 'court'])->latest()->get();
+        $requests = BookingRequest::with(['user', 'court'])->orderBy('created_at', 'desc')->get();
 
         $events = $bookings->map(function ($booking) {
             return [

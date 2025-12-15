@@ -46,8 +46,9 @@
             <a href="{{ route('staff.queues.create') }}" class="btn btn-primary">Add Queue</a>
         </div>
         <div class="card-body" style="max-height: 700px; overflow-y: auto; padding: 1rem;">
-            @if(session('error'))<div class="alert alert-danger">{{ session('error') }}@endif
-            @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div> @endif
+            @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
+            @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+
             <div id="bookingList">
                 @forelse ($waitingQueues as $queue)
                     <div class="card shadow-sm border-left-primary mb-4 booking-card" data-court="{{ $queue->court_id }}">
@@ -55,8 +56,8 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div class="flex-grow-1">
                                     <div class="d-flex align-items-center mb-2">
-                                        <h5 class="card-title mb-0 me-2 mr-1">
-                                            <strong class="text-danger"> #{{ $queue->queue_number }} </strong>
+                                        <h5 class="card-title mb-0 mr-1">
+                                            <strong class="text-danger">#{{ $queue->queue_number }}</strong>
                                             <strong>{{ $queue->customer_name }}</strong>
                                         </h5>
                                         <span class="badge bg-warning text-light">{{ ucfirst($queue->status) }}</span>
@@ -75,18 +76,22 @@
                                     <div class="p-3 bg-light rounded">
                                         <p class="small text-muted mb-1">Time</p>
                                         <p class="fw-semibold mb-0">
-                                            {{ \Carbon\Carbon::parse($queue->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($queue->end_time)->format('h:i A') }}
+                                            {{ \Carbon\Carbon::parse($queue->start_time)->format('h:i A') }}
+                                            -
+                                            {{ \Carbon\Carbon::parse($queue->end_time)->format('h:i A') }}
                                         </p>
                                     </div>
                                 </div>
+
                                 <div class="col-md-3">
                                     <div class="p-3 bg-light rounded">
                                         <p class="small text-muted mb-1">Duration</p>
                                         <p class="fw-semibold mb-0">
-                                            {{ $queue->expected_hours}}h {{ $queue->expected_minutes }}m
+                                            {{ $queue->expected_hours }}h {{ $queue->expected_minutes }}m
                                         </p>
                                     </div>
                                 </div>
+
                                 <div class="col-md-3">
                                     <div class="p-3 bg-light rounded">
                                         <p class="small text-muted mb-1">Created By</p>
@@ -95,6 +100,7 @@
                                         </p>
                                     </div>
                                 </div>
+
                                 <div class="col-md-3">
                                     <div class="p-3 bg-light rounded">
                                         <p class="small text-muted mb-1">Reference No.</p>
@@ -108,24 +114,24 @@
 
                         <div class="card-footer text-right">
                             @if($queue->queue_number == 1)
-                            <form action="{{ route('staff.queues.call', $queue->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-success btn-sm mx-1">Call</button>
-                            </form>
+                                <form action="{{ route('staff.queues.call', $queue->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm mx-1">Call</button>
+                                </form>
                             @endif
+
                             <form action="{{ route('staff.queues.skip', $queue->id) }}" method="POST" onsubmit="return confirm('Skip this queue?');" class="d-inline">
                                 @csrf
                                 <button type="submit" class="btn btn-danger btn-sm">Skip</button>
                             </form>
                         </div>
                     </div>
-           
                 @empty
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <p class="mb-0">No Customers in Queue.</p>
+                    <div class="card shadow">
+                        <div class="card-body text-center">
+                            <p class="mb-0">No Customers in Queue.</p>
+                        </div>
                     </div>
-                </div>
                 @endforelse
             </div>
         </div>

@@ -51,7 +51,7 @@
                 @endif
 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="bookingsTable">
+                    <table class="table table-bordered table-hover table-sm" id="bookingsTable">
                         <thead>
                             <tr>
                                 <th>Customer</th>
@@ -61,6 +61,7 @@
                                 <th>Duration</th>
                                 <th>Amount</th>
                                 <th>Reference No.</th>
+                                <th>Requested At</th>
                                 <th>Approved By</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Action</th>
@@ -79,7 +80,12 @@
                                     <td>{{ $booking->expected_hours }}h {{ $booking->expected_minutes }}m</td>
                                     <td>₱{{ number_format($booking->amount, 2) }}</td>
                                     <td>{{ $booking->transaction_no ?? '—' }}</td>
+                                    
+                                    <td>
+                                        {{ \Carbon\Carbon::parse($booking->created_at)->format('F d, Y') }}
+                                    </td>
                                     <td>{{ $booking->staff->name ?? '—' }}</td>
+
                                 <td class="text-light text-center">
                                     @if ($booking->status === 'pending')
                                         <span class="badge bg-warning">{{ ucfirst($booking->status) }}</span>
@@ -145,6 +151,7 @@
         var table = $('#bookingsTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
+        order: [],
         dom: 
             // top (search removed since you already have buttons outside)
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +

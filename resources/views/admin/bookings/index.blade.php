@@ -66,13 +66,15 @@
                 <table class="table table-bordered table-hover" id="bookingsTable">
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            
                             <th>Customer</th>
                             <th>Court</th>
+                            <th>Booking Date</th>
                             <th>Time</th>
                             <th>Duration</th>
                             <th>Amount</th>
                             <th>Reference No</th>
+                            <th>Requested At</th>
                             <th>Approved By</th>
                             <th class="text-center">Status</th>
                         </tr>
@@ -80,13 +82,17 @@
                     <tbody>
                          @foreach($bookings as $booking)
                             <tr>
-                                <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('F d, Y') }}</td>
+                                
                                 <td>{{ $booking->user->name ?? ''}}</td>
                                 <td>{{ $booking->court->name }}</td>
+                                <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('F d, Y') }}</td>
                                 <td>{{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}</td>
                                 <td>{{ $booking->expected_hours}}h {{ $booking->expected_minutes }}m</td>
                                 <td>₱{{ number_format($booking->amount, 2) }}</td>
                                 <td>{{ $booking->transaction_no ?? '—' }}</td>
+                                 <td>
+                                        {{ \Carbon\Carbon::parse($booking->created_at)->format('F d, Y') }}
+                                    </td>
                                 <td class="text-center">{{ $booking->staff->name ?? '—' }}</td>
                                 <td class="text-light text-center">
                                     <span class="badge bg-{{ 
@@ -157,6 +163,7 @@ $(document).ready(function () {
     var table = $('#bookingsTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
+        order: [],
         dom:
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
             '<"bottom d-flex justify-content-between align-items-center"ip>',

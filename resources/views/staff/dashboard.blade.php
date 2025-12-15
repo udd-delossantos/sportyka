@@ -242,12 +242,12 @@
                     <!-- Overall Totals -->
                     <tr class="fw-bold bg-light">
                         <td><strong>TOTAL:</strong></td>
-                        <td><strong>Total: {{ $bookingCount }}</strong></td>
-                        <td><strong>Total: {{ $walkinCount }}</strong></td>
+                        <td><strong>Total: {{ $overallBookingCount }}</strong></td>
+                        <td><strong>Total: {{ $overallWalkinCount }}</strong></td>
                         <td><strong>Overall: {{ $overallBookingCount + $overallWalkinCount }}</strong></td>
-                        <td><strong>Total: {{ $totalCash }}</strong></td>
-                        <td><strong>Total: {{ $totalGcash }}</strong></td>
-                        <td><strong>Total: ₱{{ number_format($confirmedBookingsTotal, 2) }}</strong></td>
+                        <td><strong>Total: ₱{{ $overallCash }}</strong></td>
+                        <td><strong>Total: ₱{{ $overallGcash }}</strong></td>
+                        <td><strong>Total: ₱{{ number_format($overallConfirmed, 2) }}</strong></td>
                         <td><strong>Overall: ₱{{ number_format($overallPayments, 2) }}</strong></td>
                     </tr>
                 </tbody>
@@ -255,9 +255,9 @@
                   <div class="mt-4">
                 <h5>Summary</h5>
                 <ul class="list-group">
-                    <li class="list-group-item">Total Walk-in Sessions: {{ $walkinCount }}</li>
-                    <li class="list-group-item">Total Booking Sessions: {{ $bookingCount }}</li>
-                    <li class="list-group-item bg-light"><strong>Overall Total Sessions: {{ $bookingCount + $walkinCount }}</strong></li>
+                    <li class="list-group-item">Total Walk-in Sessions: {{ $overallWalkinCount }}</li>
+                    <li class="list-group-item">Total Booking Sessions: {{ $overallBookingCount }}</li>
+                    <li class="list-group-item bg-light"><strong>Overall Total Sessions: {{ $overallBookingCount + $overallWalkinCount }}</strong></li>
                     <li class="list-group-item">GCash (Upfront): ₱{{ number_format($overallConfirmed , 2) }}</li>
                     <li class="list-group-item">
                         Total GCash (Cashier): ₱{{ number_format($overallGcash, 2) }}

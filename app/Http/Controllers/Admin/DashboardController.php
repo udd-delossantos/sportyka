@@ -61,10 +61,10 @@ class DashboardController extends Controller
             ->count();
 
         // ✅ Confirmed bookings total amount
-        $confirmedBookingsTotalAmount += Booking::whereMonth('booking_date', $startDate->month)
+        $confirmedBookingsTotalAmount = Booking::whereMonth('booking_date', $startDate->month)
             ->whereYear('booking_date', $startDate->year)
-            ->where('status', 'confirmed')
             ->sum('amount');
+
 
         // Payments
         $payments = Payment::whereIn('game_session_id', $sessions->pluck('id'))->get();
@@ -97,37 +97,45 @@ class DashboardController extends Controller
         // Confirmed bookings earnings for this court
         $bookingEarnings = Booking::where('court_id', $court->id)
             ->whereBetween('booking_date', [$startDate, $endDate])
-            ->where('status', 'confirmed')
             ->sum('amount');
 
         return [$court->name => $sessionPayments + $queueEarnings + $bookingEarnings];
     });
 
     // Weekly Earnings (Line Chart) - include queues + payments + confirmed bookings
-    $weeksInMonth = ceil($startDate->daysInMonth / 7);
     $weeklyEarnings = collect();
 
-    for ($week = 1; $week <= $weeksInMonth; $week++) {
-        $weekStart = $startDate->copy()->addDays(($week - 1) * 7);
-        $weekEnd   = $weekStart->copy()->addDays(6);
+$cursor = $startDate->copy()->startOfWeek();
+$week = 1;
 
-        // Clamp inside the month
-        if ($weekStart < $startDate) $weekStart = $startDate;
-        if ($weekEnd > $endDate) $weekEnd = $endDate;
+while ($cursor <= $endDate) {
+    $weekStart = $cursor->copy();
+    $weekEnd   = $cursor->copy()->endOfWeek();
 
-        // Payments
-        $paymentTotal = Payment::whereBetween('created_at', [$weekStart, $weekEnd])->sum('amount');
+    // Clamp inside selected range
+    if ($weekStart < $startDate) $weekStart = $startDate->copy();
+    if ($weekEnd > $endDate) $weekEnd = $endDate->copy();
 
-        // Queues
-        $queueTotal = Queue::whereBetween('created_at', [$weekStart, $weekEnd])->sum('amount');
+    // Payments
+    $paymentTotal = Payment::whereBetween('created_at', [$weekStart, $weekEnd])
+        ->sum('amount');
 
-        // ✅ Confirmed bookings
-        $bookingTotal = Booking::whereBetween('booking_date', [$weekStart, $weekEnd])
-            ->where('status', 'confirmed')
-            ->sum('amount');
+    // Queues
+    $queueTotal = Queue::whereBetween('created_at', [$weekStart, $weekEnd])
+        ->sum('amount');
 
-        $weeklyEarnings->put("Week $week", $paymentTotal + $queueTotal + $bookingTotal);
-    }
+    // Confirmed bookings
+    $bookingTotal = Booking::whereBetween('booking_date', [
+            $weekStart->toDateString(),
+            $weekEnd->toDateString()
+        ])
+        ->sum('amount');
+
+    $weeklyEarnings->put("Week $week", $paymentTotal + $queueTotal + $bookingTotal);
+
+    $cursor->addWeek();
+    $week++;
+}
 
     return view('admin.dashboard', compact(
         'month',

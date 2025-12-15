@@ -84,7 +84,7 @@ Route::post('/logout', function () {
 
 
 
-Route::middleware(['auth', IsAdmin::class])
+Route::middleware(['auth', 'verified', IsAdmin::class])
     ->prefix('admin')   
     ->name('admin.')
     ->group(function () {
@@ -119,7 +119,7 @@ Route::middleware(['auth', IsAdmin::class])
 
     });
 
-Route::middleware(['auth', IsStaff::class])
+Route::middleware(['auth', 'verified', IsStaff::class])
     ->prefix('staff')
     ->name('staff.')
     ->group(function () {

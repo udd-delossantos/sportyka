@@ -100,15 +100,18 @@
                                 <td class="text-center">{{ ucfirst($op->status) }}</td>
                                 <td class="text-center">
                                     <a href="{{ route('admin.daily_operations.show', $op->id) }}" class="btn btn-sm btn-info">View Report</a>
-                                    
-                                    <form action="{{ route('admin.daily-operations.reopen', $op->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Re-open this day?')">
-                                            Re-open
-                                        </button>
-                                    </form>
+
+                                    @if(!$active || $op->id !== $active->id)
+                                        <form action="{{ route('admin.daily-operations.reopen', $op->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Re-open this day?')">
+                                                Re-open
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
+
     
                             </tr>
                         @endforeach
@@ -151,7 +154,7 @@ $(document).ready(function () {
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
             // bottom with pagination aligned right
             '<"bottom d-flex justify-content-between align-items-center"ip>',
-        order: [[0, 'desc']],
+        order: [],
         buttons: [
             {
                 extend: 'csvHtml5',

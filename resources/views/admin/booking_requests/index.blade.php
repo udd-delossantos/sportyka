@@ -58,12 +58,13 @@
                         <tr>
                             <th>Customer</th>
                             <th>Court</th>
-                            <th>Date</th>
+                            <th>Booking Date</th>
                             <th>Time</th>
                             <th>Duration</th>
                             <th>Amount</th>
                             <th>Reference No.</th>
-                            <!--<th>Approved By</th>-->
+                            <th>Requested At</th>
+                            <!--<th>Handled By</th>-->
                             <th class="text-center">Status</th>
                         </tr>
                     </thead>
@@ -80,6 +81,9 @@
                                 <td>{{ $request->expected_hours }}h {{ $request->expected_minutes }}m</td>
                                 <td>₱{{ number_format($request->amount, 2) }}</td>
                                 <td>{{ $request->transaction_no ?? '—' }}</td>
+                                 <td>
+                                        {{ \Carbon\Carbon::parse($request->created_at)->format('F d, Y') }}
+                                    </td>
                                 <!--<td>{{ $request->staff->name ?? '—' }}</td>-->
                                 <td class="text-light text-center">
                                     <span class="badge bg-{{ 
@@ -101,33 +105,35 @@
 @endsection
 @push('scripts')
 <script>
-$(document).ready(function() {
-    var table = $('#bookingRequestsTable').DataTable({
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50, 100],
-        dom: 
-            // top (search removed since you already have buttons outside)
-            '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
-            // bottom with pagination aligned right
-            '<"bottom d-flex justify-content-between align-items-center"ip>',
-        buttons: [
-            {
-                extend: 'csvHtml5',
-                title: 'Booking Request Records',
-                exportOptions: { columns: ':visible' }
-            },
-            {
-                extend: 'excelHtml5',
-                title: 'Booking Request Records',
-                exportOptions: { columns: ':visible' }
-            },
-            {
-                extend: 'print',
-                title: 'Booking Request Records',
-                exportOptions: { columns: ':visible' }
-            }
-        ]
-    });
+    $(document).ready(function() {
+        var table = $('#bookingRequestsTable').DataTable({
+            pageLength: 10,
+            lengthMenu: [5, 10, 25, 50, 100],
+            order: [], // Date column
+
+            dom: 
+                // top (search removed since you already have buttons outside)
+                '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
+                // bottom with pagination aligned right
+                '<"bottom d-flex justify-content-between align-items-center"ip>',
+            buttons: [
+                {
+                    extend: 'csvHtml5',
+                    title: 'Booking Request Records',
+                    exportOptions: { columns: ':visible' }
+                },
+                {
+                    extend: 'excelHtml5',
+                    title: 'Booking Request Records',
+                    exportOptions: { columns: ':visible' }
+                },
+                {
+                    extend: 'print',
+                    title: 'Booking Request Records',
+                    exportOptions: { columns: ':visible' }
+                }
+            ]
+        });
 
     // External buttons
     $('#exportCsv').on('click', function() {

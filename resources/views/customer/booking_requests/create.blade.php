@@ -32,7 +32,7 @@
     <h2 class="text-primary">Dear Customer</h2>
     <div class="px-5">
         <p class="lead mb-4">Before booking, please note that a 50% down payment is required, and GCash payments must include a valid 13-digit reference number. 
-       Double bookings are not allowed, so check your court, date, and time carefully. Arrive at least 15 minutes early, and don’t forget to bring 
+       Check your court, date, and time carefully. Arrive at least 15 minutes early, and don’t forget to bring 
        your own gear and accessories (rackets, balls, shuttlecocks, etc.) as these are not included in the rental.</p>
 
     </div>
@@ -45,7 +45,7 @@
             <div class="step">
                 <div class="card mb-4 shadow">
                     <div class="card-header">
-                        <h5 class="mb-0 text-primary">Step 1: Select Court</h5>
+                        <h5 class="mb-0 text-primary">Select Court</h5>
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
@@ -81,7 +81,7 @@
             <div class="step d-none">
                 <div class="card mb-4 shadow">
                     <div class="card-header">
-                        <h5 class="mb-0 text-primary">Step 2: Pick Date, Duration, and Time</h5>
+                        <h5 class="mb-0 text-primary">Pick Date, Duration, and Time</h5>
                     </div>
                     <div class="card-body">
                         {{-- Keep your date & time fields here --}}
@@ -139,7 +139,7 @@
             <div class="step d-none">
                 <div class="card mb-4 shadow">
                     <div class="card-header">
-                        <h5 class="mb-0 text-primary">Step 3: Partial Payment</h5>
+                        <h5 class="mb-0 text-primary">Partial Payment</h5>
                     </div>
                     <div class="card-body">
                         {{-- GCash transaction + QR code --}}
@@ -181,7 +181,7 @@
             <div class="step d-none">
                 <div class="card mb-4 shadow">
                     <div class="card-header">
-                        <h5 class="mb-0 text-primary">Step 4: Summary</h5>
+                        <h5 class="mb-0 text-primary">Summary</h5>
                     </div>
                     <div class="card-body" id="summaryBox">
                         <p class="text-muted mb-0">Your booking details will appear here.</p>
@@ -460,12 +460,19 @@ document.addEventListener("DOMContentLoaded", function () {
     let currentStep = 0;
 
     function showStep(index) {
-        steps.forEach((step, i) => {
-            step.classList.toggle("d-none", i !== index);
-        });
-        if (prevBtn) prevBtn.classList.toggle("d-none", index === 0);
-        if (nextBtn) nextBtn.classList.toggle("d-none", index === steps.length - 1);
+    steps.forEach((step, i) => {
+        step.classList.toggle("d-none", i !== index);
+    });
+
+    if (prevBtn) prevBtn.classList.toggle("d-none", index === 0);
+    if (nextBtn) nextBtn.classList.toggle("d-none", index === steps.length - 1);
+
+    // ✅ FIX: When entering Step 3 (Partial Payment), recompute amount
+    if (index === 2) {
+        computeAmount();
+        renderSummary();
     }
+}
 
     function showError(message, stepIndex) {
         clearError();

@@ -206,6 +206,8 @@
         </div>
         <!-- Added fixed height & scroll -->
         <div class="card-body" style="max-height: 500px; overflow-y: auto; padding: 1rem;">
+            @if(session('error'))<div class="alert alert-danger">{{ session('error') }}@endif
+            @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div> @endif
             <div id="queueList">
                 @forelse($queues as $queue)
                 <div class="card shadow-sm mb-3 queue-item bg-light" data-court="{{ $queue->court->name }}">
@@ -452,6 +454,7 @@ $(document).ready(function () {
     var table = $('#completedSessionsTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
+         order: [[2, 'desc']],
         dom:
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
             '<"bottom d-flex justify-content-between align-items-center"ip>',

@@ -20,6 +20,7 @@ class BookingRequestController extends Controller
 {
     public function index()
     {
+        $courts = Court::all();
 
 
        
@@ -28,13 +29,14 @@ class BookingRequestController extends Controller
             ->latest()
             ->get();
 
-            $courts = Court::all();
+            
 
 
             $processedRequests = BookingRequest::with(['user', 'court'])
-            ->whereIn('status', ['approved', 'cancelled'])
-            ->latest()
-            ->get();
+                ->orderBy('created_at', 'desc')
+                ->whereIn('status', ['approved','cancelled'])
+                ->get();
+
 
             $requestCount = BookingRequest::with(['user', 'court'])
             ->count();
@@ -56,12 +58,13 @@ class BookingRequestController extends Controller
     {
         $request = BookingRequest::findOrFail($id);
         $request->status = 'approved'; 
+        $request->staff_id = Auth::id(); // ✅ ADD THIS
         $request->save(); 
 
         // Move into bookings
         $booking = Booking::create([
             'user_id'           => $request->user_id,
-            'staff_id'          => auth()->id(),
+            'staff_id'          => Auth::id(),
             'court_id'          => $request->court_id,
             'booking_date'      => $request->booking_date,
             'start_time'        => $request->start_time,

@@ -28,7 +28,10 @@ class BookingController extends Controller
             $expired->save();
         }
         // Confirmed bookings for calendar
-        $bookings = Booking::with(['user', 'court'])->latest()->get();
+        $bookings = Booking::with(['user', 'court'])
+    ->orderBy('created_at', 'desc')
+    ->get();
+
 
         $events = $bookings->map(function ($booking) {
             return [

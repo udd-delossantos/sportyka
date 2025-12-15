@@ -1,23 +1,24 @@
 @extends('layouts.staff.app')
 
 @section('content')
-<div class="container">
+<div class="container-fluid">
     <form method="POST" action="{{ route('staff.game_sessions.store') }}">
+        @csrf
+        <div class="row">
+            <div class="col-md-7">
+                <!-- ================= FORM CARD ================= -->
         <div class="card shadow mb4">
             <div class="card-header pb-0">
                 <h5><strong>Create Session</strong></h5>
             </div>
             <div class="card-body">
                 @if(session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
+                    <div class="alert alert-danger">{{ session('error') }}</div>
                 @endif
-                @csrf
 
                 <div class="mb-3">
-                    <label for="court_id">Court</label>
-                    <select name="court_id" id="court_id" class="form-control" required>
+                    <label>Court</label>
+                    <select name="court_id" id="courtSelect" class="form-control" required>
                         @foreach($courts as $court)
                             @if($court->status === 'available')
                                 <option value="{{ $court->id }}" data-rate="{{ $court->hourly_rate }}">
@@ -29,13 +30,13 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="customer_name">Customer Name</label>
+                    <label>Customer Name</label>
                     <input type="text" name="customer_name" class="form-control" required />
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="hours">Hours</label>
+                        <label>Hours</label>
                         <select name="hours" id="hours" class="form-control" required>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -44,8 +45,8 @@
                             <option value="5">5</option>
                         </select>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="minutes">Minutes</label>
+                    <div class="col-md-6 mb-4">
+                        <label>Minutes</label>
                         <select name="minutes" id="minutes" class="form-control" required>
                             <option value="0">0</option>
                             <option value="30">30</option>
@@ -53,46 +54,137 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-md-12 text-center">
-                        <h5 class="mb-0">Amount: <span id="amountDisplay" class="text-success">₱0.00</span></h5>
-                    </div>
+                <div class="text-center">
+                    <h5>Amount: <span id="amountDisplay" class="text-success">₱0.00</span></h5>
                 </div>
             </div>
+
             <div class="card-footer">
                 <button type="submit" class="btn btn-success btn-sm">Create Session</button>
                 <a href="{{ route('staff.game_sessions.index') }}" class="btn btn-secondary btn-sm">Back</a>
             </div>
         </div>
+
+            </div>
+            <div class="col-md-5">
+                <!-- ================= QUEUE CARD ================= -->
+        <div class="card mb-4 shadow" id="queueContainer" style="display:none;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><strong>Queue – Waiting Customers</strong></h5>
+                <small class="text-muted" id="queueCourtBadge" style="display:none;"></small>
+            </div>
+            <div class="card-body" id="queueList">
+                <p class="text-muted mb-0">Select a court to view waiting customers.</p>
+            </div>
+        </div>
+
+        <!-- ================= BOOKED SLOTS CARD ================= -->
+        <div class="card mb-4 shadow" id="bookedContainer" style="display:none;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><strong>Booked Time Slots</strong></h5>
+                <small class="text-muted" id="bookedCourtBadge" style="display:none;"></small>
+            </div>
+            <div class="card-body" id="bookedList">
+                <p class="text-muted mb-0">No booked slots.</p>
+            </div>
+        </div>
+
+            </div>
+        </div>
+
+        
+
+        
     </form>
 </div>
+@endsection
 
 @push('scripts')
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const courtSelect = document.getElementById("court_id");
-    const hoursSelect = document.getElementById("hours");
-    const minutesSelect = document.getElementById("minutes");
-    const amountDisplay = document.getElementById("amountDisplay");
+document.addEventListener('DOMContentLoaded', function () {
 
-    function calculateAmount() {
-        const rate = parseFloat(courtSelect.options[courtSelect.selectedIndex].dataset.rate || 0);
-        const hours = parseInt(hoursSelect.value || 0);
-        const minutes = parseInt(minutesSelect.value || 0);
+    const queuesByCourt = @json($queuesByCourt);
+    const bookedByCourt = @json($bookedByCourt);
 
-        const totalHours = hours + (minutes / 60);
-        const amount = rate * totalHours;
+    const courtSelect = document.getElementById('courtSelect');
 
-        amountDisplay.textContent = "₱ " + amount.toFixed(2);
+    const queueContainer = document.getElementById('queueContainer');
+    const queueList = document.getElementById('queueList');
+    const queueCourtBadge = document.getElementById('queueCourtBadge');
+
+    const bookedContainer = document.getElementById('bookedContainer');
+    const bookedList = document.getElementById('bookedList');
+    const bookedCourtBadge = document.getElementById('bookedCourtBadge');
+
+    const hours = document.getElementById('hours');
+    const minutes = document.getElementById('minutes');
+    const amountDisplay = document.getElementById('amountDisplay');
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, s => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+        }[s]));
     }
 
-    courtSelect.addEventListener("change", calculateAmount);
-    hoursSelect.addEventListener("change", calculateAmount);
-    minutesSelect.addEventListener("change", calculateAmount);
+    function renderCards() {
+        const courtId = courtSelect.value;
+        const courtName = courtSelect.options[courtSelect.selectedIndex].text.split(' (')[0];
 
-    // Run on page load (default values)
+        /* ===== QUEUE ===== */
+        queueContainer.style.display = 'block';
+        queueCourtBadge.style.display = 'inline-block';
+        queueCourtBadge.textContent = `for ${courtName}`;
+        queueList.innerHTML = '';
+
+        const waiting = queuesByCourt[courtId] || [];
+        if (!waiting.length) {
+            queueList.innerHTML = `<p class="text-success mb-0">No waiting customers.</p>`;
+        } else {
+            waiting.forEach(q => {
+                queueList.innerHTML += `
+                    <div class="alert alert-warning py-2 mb-2">
+                        <strong>${escapeHtml(q.customer)}</strong>
+                        <span class="text-muted"> — ${q.start_time} to ${q.end_time}</span>
+                    </div>`;
+            });
+        }
+
+        /* ===== BOOKED ===== */
+        bookedContainer.style.display = 'block';
+        bookedCourtBadge.style.display = 'inline-block';
+        bookedCourtBadge.textContent = `for ${courtName}`;
+        bookedList.innerHTML = '';
+
+        const booked = bookedByCourt[courtId] || [];
+        if (!booked.length) {
+            bookedList.innerHTML = `<p class="text-success mb-0">No booked slots for today.</p>`;
+        } else {
+            booked.forEach(b => {
+                bookedList.innerHTML += `
+                    <div class="alert alert-info py-2 mb-2">
+                        <strong>${escapeHtml(b.customer)}</strong>
+                        <span class="text-muted"> — ${b.start_time} to ${b.end_time}</span>
+                    </div>`;
+            });
+        }
+    }
+
+    function calculateAmount() {
+        const rate = parseFloat(courtSelect.selectedOptions[0].dataset.rate || 0);
+        const total = rate * (parseInt(hours.value) + (parseInt(minutes.value) / 60));
+        amountDisplay.textContent = '₱' + total.toFixed(2);
+    }
+
+    courtSelect.addEventListener('change', () => {
+        renderCards();
+        calculateAmount();
+    });
+
+    hours.addEventListener('change', calculateAmount);
+    minutes.addEventListener('change', calculateAmount);
+
+    renderCards();
     calculateAmount();
 });
 </script>
 @endpush
-@endsection

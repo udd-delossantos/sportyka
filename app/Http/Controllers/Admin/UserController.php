@@ -19,19 +19,44 @@ class UserController extends Controller
         return view('admin.users.create');
     }
 
-    public function store(Request $request) {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'role' => 'required|in:admin,staff,customer',
-        ]);
+    public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => [
+            'required',
+            'min:8',
+            'regex:/[a-z]/',      // lowercase
+            'regex:/[A-Z]/',      // uppercase
+            'regex:/[0-9]/',      // number
+            'regex:/[@$!%*#?&]/', // special character
+        ],
+        'role' => 'required|in:admin,staff,customer',
+    ]);
 
-        $validated['password'] = Hash::make($validated['password']);
-        User::create($validated);
+    $validated['password'] = Hash::make($validated['password']);
 
-        return redirect()->route('admin.users.index')->with('success', 'User created.');
-    }
+    // ✅ Create user
+    $user = User::create($validated);
+
+    // ✅ Force email verification
+    $user->sendEmailVerificationNotification();
+
+    
+
+if ($validated['role'] === 'staff') {
+    return redirect()
+        ->route('staff.dashboard')
+        ->with('success', 'User created. Verification email sent.');
+}
+
+return redirect()
+    ->route('admin.dashboard')
+    ->with('success', 'User created. Verification email sent.');
+
+
+}
 
     public function edit(User $user) {
         return view('admin.users.edit', compact('user'));

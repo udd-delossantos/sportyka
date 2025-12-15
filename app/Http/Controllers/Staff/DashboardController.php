@@ -27,6 +27,7 @@ class DashboardController extends Controller
         $walkinCount = 0;
         $totalCash = 0;
         $totalGcash = 0;
+        $overallConfirmed = 0;
 
 
         if ($active) {
@@ -44,8 +45,7 @@ class DashboardController extends Controller
                 $bookingCount = $sessions->where('session_type', 'booking')->count();
                 $walkinCount = $sessions->whereIn('session_type', ['walk-in', 'queue'])->count();
 
-                $confirmedBookingCount = \App\Models\Booking::where('status', 'confirmed')
-                    ->whereDate('updated_at', today())
+                $confirmedBookingCount = \App\Models\Booking::whereDate('updated_at', today())
                     ->count();
 
                 // Payments for this court today
@@ -60,8 +60,7 @@ class DashboardController extends Controller
 
                 // ✅ Bookings confirmed today (calendar date, not operation date)
                 $confirmedBookingsTotal = \App\Models\Booking::where('court_id', $court->id)
-                    ->whereDate('updated_at', Carbon::today()) // always today's date
-                    ->where('status', 'confirmed')
+                    ->whereDate('created_at', $operation->date) // ✅ business day
                     ->sum('amount');
 
                 // Combine

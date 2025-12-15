@@ -42,7 +42,9 @@
     <div class="card-body" style="max-height: 700px; overflow-y: auto; padding: 1rem;">
         <div id="bookingList">
                 @forelse($requests as $request)
-                <div class="card shadow border-left-primary mb-4 booking-card" data-status="{{ $request->status }}">
+                <div class="card shadow border-left-primary mb-4 booking-card"
+     data-court="{{ $request->court_id }}"
+     data-status="{{ $request->status }}">
                     <div class="card-body" style="background: linear-gradient(135deg, #e6f0ff, #f8fbff);">
                         <!-- Header -->
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -168,6 +170,7 @@
                             <th>Amount</th>
                             <th>Transaction No</th>
                             <!--<th>Approved By</th>-->
+                            <th>Requested At</th>
                             <th class="text-center">Status</th>
                         </tr>
                     </thead>
@@ -185,6 +188,10 @@
                                 <td>₱{{ number_format($processedRequest->amount, 2) }}</td>
                                 <td>{{ $processedRequest->transaction_no ?? '—' }}</td>
                                 <!--<td>{{ $processedRequest->staff->name ?? '—' }}</td>-->
+                                <td>
+    {{ \Carbon\Carbon::parse($processedRequest->created_at)->format('F d, Y') }}
+</td>
+
                                 <td class="text-light text-center">
                                     <span class="badge bg-{{ 
                                         $processedRequest->status === 'pending' ? 'warning' : 
@@ -206,6 +213,18 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+
+         document.getElementById('courtFilter').addEventListener('change', function () {
+    const courtId = this.value;
+
+    document.querySelectorAll('.booking-card').forEach(card => {
+        if (!courtId || card.dataset.court === courtId) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
 
     document.addEventListener("click", function (e) {
 
@@ -237,6 +256,8 @@
         var table = $('#bookingRequestsTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
+        order: [], // Date column
+
         dom: 
             // top (search removed since you already have buttons outside)
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
@@ -276,17 +297,8 @@
 
 
         // Court Filter
-        document.getElementById('courtFilter').addEventListener('change', function() {
-            const courtId = this.value;
+       
 
-            document.querySelectorAll('#bookingList .booking-card').forEach(card => {
-                if (!courtId || card.dataset.court === courtId) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
     });
 </script>
 

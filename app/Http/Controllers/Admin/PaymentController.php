@@ -7,7 +7,7 @@ use App\Models\Payment;
 use App\Models\Queue;
 use App\Models\GameSession;
 use App\Models\DailyOperation;
-
+use Illuminate\Support\Carbon;
 class PaymentController extends Controller
 {
     public function index()
@@ -48,7 +48,10 @@ class PaymentController extends Controller
                 ->where('daily_operation_id', $active->id)
                 ->sum('amount');
 
-            $totalGCash = $gcashPayments + $gcashFromQueue;
+            $confirmedBookingsTotal = \App\Models\Booking::whereDate('updated_at', Carbon::today()) // always today's date
+            ->sum('amount');
+
+            $totalGCash = $gcashPayments + $gcashFromQueue + $confirmedBookingsTotal;
 
             // 3. Total amounts collected today
             $totalCollected = $totalCash + $totalGCash;

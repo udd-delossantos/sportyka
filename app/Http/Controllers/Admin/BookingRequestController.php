@@ -19,8 +19,9 @@ class BookingRequestController extends Controller
 
        
             $requests = BookingRequest::with(['user', 'court'])
-            ->latest()
+            ->orderBy('created_at', 'desc')
             ->get();
+
 
             $courts = Court::all();
 

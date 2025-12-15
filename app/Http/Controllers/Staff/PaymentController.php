@@ -56,7 +56,6 @@ class PaymentController extends Controller
   
 
         $confirmedBookingsTotal = \App\Models\Booking::whereDate('updated_at', Carbon::today()) // always today's date
-            ->where('status', 'confirmed')
             ->sum('amount');
 
         $totalGCash = $gcashPayments + $gcashFromQueue + $confirmedBookingsTotal;

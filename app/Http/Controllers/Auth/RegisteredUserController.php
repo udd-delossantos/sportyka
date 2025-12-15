@@ -11,10 +11,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Lang;
+
 
 class RegisteredUserController extends Controller
 {
-    /**
+    /** 
      * Display the registration view.
      */
     public function create(): View
@@ -32,7 +35,15 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email:rfc,dns', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed',
+                Password::min(8)
+                    ->mixedCase()      // requires uppercase + lowercase
+                    ->numbers()        // requires numbers
+                    ->symbols(),       // requires special characters
+            ],
+
         ]);
 
         $user = User::create([
