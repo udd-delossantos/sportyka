@@ -46,6 +46,7 @@ class DashboardController extends Controller
                 $walkinCount = $sessions->whereIn('session_type', ['walk-in', 'queue'])->count();
 
                 $confirmedBookingCount = \App\Models\Booking::whereDate('updated_at', today())
+                ->where('status', 'confirmed')
                     ->count();
 
                 // Payments for this court today

@@ -5,17 +5,17 @@
             <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
             <h2 class="mb-0 text-primary"><strong>Queues</strong></h2>
             <div class="d-flex gap-3">
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-warning" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Waiting</h6>
-                    <h4 class="mb-0 text-warning">{{ $waitingCount }}</h4>
+                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
+                    <h6 class="text-muted mb-1">Total DP Collected</h6>
+                    <h4 class="mb-0 text-primary">₱{{ number_format($queueTotalCollected, 2) }}</h4>
                 </div>
                 <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Called</h6>
-                    <h4 class="mb-0 text-success">{{ $calledCount }}</h4>
+                    <h6 class="text-muted mb-1">Cash</h6>
+                    <h4 class="mb-0 text-success">₱{{ number_format($queueCashCollected, 2) }}</h4>
                 </div>
                 <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Completed</h6>
-                    <h4 class="mb-0 text-info">{{ $completedCount }}</h4>
+                    <h6 class="text-muted mb-1">GCash</h6>
+                    <h4 class="mb-0 text-info">₱{{ number_format($queueGCashCollected, 2) }}</h4>
                 </div>
                 <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
                     <h6 class="text-muted mb-1">Skipped</h6>
@@ -37,11 +37,28 @@
                 <h4 class="mb-0 mr-2"><strong>Waiting Customers</strong></h4>
                 <!-- FILTER DROPDOWN -->
                 <select id="courtFilter" class="form-control form-control-sm" style="width:200px;">
-                    <option value="">All Courts</option>
-                    @foreach($courts as $court)
-                        <option value="{{ $court->id }}">{{ $court->name }}</option>
-                    @endforeach
-                </select>
+    <option value="">
+        All Courts
+        @php
+            $totalWaiting = $courts->sum('waiting_count');
+        @endphp
+
+        @if($totalWaiting > 0)
+            ({{ $totalWaiting }})
+        @endif
+    </option>
+
+    @foreach($courts as $court)
+        <option value="{{ $court->id }}">
+            {{ $court->name }}
+            @if($court->waiting_count > 0)
+                ({{ $court->waiting_count }})
+            @endif
+        </option>
+    @endforeach
+</select>
+
+
             </div>
             <a href="{{ route('staff.queues.create') }}" class="btn btn-primary">Add Queue</a>
         </div>
@@ -217,9 +234,7 @@ $(document).ready(function() {
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
         dom: 
-            // top (search removed since you already have buttons outside)
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
-            // bottom with pagination aligned right
             '<"bottom d-flex justify-content-between align-items-center"ip>',
         buttons: [
             {
@@ -251,11 +266,24 @@ $(document).ready(function() {
         table.button(2).trigger();
     });
 
-    // Court Filter
-    document.getElementById('courtFilter').addEventListener('change', function() {
-        const courtId = this.value;
+    const courtFilter = document.getElementById('courtFilter');
 
-        // Filter waiting customers (cards)
+    // ✅ RESTORE SAVED FILTER ON LOAD
+    const savedCourt = localStorage.getItem('waitingCourtFilter');
+    if (savedCourt !== null) {
+        courtFilter.value = savedCourt;
+        applyCourtFilter(savedCourt);
+    }
+
+    // ✅ SAVE FILTER ON CHANGE
+    courtFilter.addEventListener('change', function() {
+        const courtId = this.value;
+        localStorage.setItem('waitingCourtFilter', courtId);
+        applyCourtFilter(courtId);
+    });
+
+    // ✅ FILTER FUNCTION
+    function applyCourtFilter(courtId) {
         document.querySelectorAll('#bookingList .booking-card').forEach(card => {
             if (!courtId || card.dataset.court === courtId) {
                 card.style.display = '';
@@ -263,8 +291,9 @@ $(document).ready(function() {
                 card.style.display = 'none';
             }
         });
-    });
+    }
 });
 </script>
 @endpush
+
 

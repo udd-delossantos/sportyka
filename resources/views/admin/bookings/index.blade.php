@@ -6,20 +6,21 @@
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
             <h2 class="mb-0 text-primary"><strong>Scheduled Bookings</strong></h2>
             <div class="d-flex gap-3">
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Confirmed</h6>
-                    <h4 class="mb-0 text-success">{{ $confirmedCount }}</h4>
-                </div>
                 <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Ongoing</h6>
-                    <h4 class="mb-0 text-primary">{{ $ongoingCount }}</h4>
+                    <h6 class="text-muted mb-1">Collected DP Today</h6>
+                    <h4 class="mb-0 text-primary">₱{{ number_format($confirmedBookingsTotal, 2) }}</h4>
                 </div>
+                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
+                    <h6 class="text-muted mb-1">Confirmed/Ongoing Today</h6>
+                    <h4 class="mb-0 text-success">{{ $confirmedTodayCount }}</h4>
+                </div>
+                
                 <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Completed (Today)</h6>
+                    <h6 class="text-muted mb-1">Completed Today</h6>
                     <h4 class="mb-0 text-info">{{ $completedTodayCount }}</h4>
                 </div>
                 <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Voided (Today)</h6>
+                    <h6 class="text-muted mb-1">Voided Today</h6>
                     <h4 class="mb-0 text-danger">{{ $voidedTodayCount }}</h4>
                 </div>
             </div>
@@ -55,7 +56,6 @@
                 </div>
                  <div class="col-md-6">
                     <p>Total Earnings (Filtered Date):</p><h4 class="mb-0">
-                        
                         <span id="totalEarnings" class="text-success">₱ 0.00</span>
                     </h4>
                 </div>

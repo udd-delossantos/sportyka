@@ -313,6 +313,43 @@ document.addEventListener("DOMContentLoaded", function () {
     const minutesInput = document.querySelector('select[name="minutes"]');
     const startTimeInput = document.querySelector('input[name="start_time"]');
     const endTimeInput = document.querySelector('input[name="end_time"]');
+    // ==============================
+// TIME RESTRICTIONS (8AM–10PM)
+// ==============================
+function timeToMinutes(time) {
+    if (!time) return null;
+    const [h, m] = time.split(':').map(Number);
+    return (h * 60) + m;
+}
+
+const MIN_START = 8 * 60;   // 08:00 AM
+const MAX_END   = 22 * 60;  // 10:00 PM
+
+if (startTimeInput) {
+    startTimeInput.addEventListener('change', function () {
+        const startMinutes = timeToMinutes(startTimeInput.value);
+
+        if (startMinutes !== null && startMinutes < MIN_START) {
+            alert('Start time cannot be earlier than 8:00 AM.');
+            startTimeInput.value = '';
+            if (endTimeInput) endTimeInput.value = '';
+            return;
+        }
+
+        // After computing end time, validate it too
+        setTimeout(() => {
+            if (!endTimeInput || !endTimeInput.value) return;
+
+            const endMinutes = timeToMinutes(endTimeInput.value);
+            if (endMinutes > MAX_END) {
+                alert('End time cannot go later than 10:00 PM.');
+                startTimeInput.value = '';
+                endTimeInput.value = '';
+            }
+        }, 0);
+    });
+}
+
     const computedAmount = document.getElementById('computedAmount');
     const summaryBox = document.getElementById('summaryBox');
     const transactionInput = document.getElementById('transaction_no');
@@ -605,6 +642,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById('nextBtn').click(); 
     }
 });
+
+
 
 </script>
 @endpush

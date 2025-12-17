@@ -20,7 +20,16 @@ class Court extends Model
 
         protected $casts = [
     'images' => 'array',
+
+    
 ];
+
+
+// App\Models\Court.php
+public function queues()
+{
+    return $this->hasMany(Queue::class);
+}
 
 
     

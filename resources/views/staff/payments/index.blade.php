@@ -6,18 +6,19 @@
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
             <h2 class="mb-0 text-primary"><strong>Payments</strong></h2>
         <div class="d-flex gap-3">
+                        <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Total Collected</h6>
+                <h4 class="mb-0 text-primary">₱{{ number_format($totalCollected, 2) }}</h4>
+            </div>
             <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
                 <h6 class="text-muted mb-1">Cash</h6>
                 <h4 class="mb-0 text-success">₱{{ number_format($totalCash, 2) }}</h4>
             </div>
-            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">GCash</h6>
-                <h4 class="mb-0 text-primary">₱{{ number_format($totalGCash, 2) }}</h4>
-            </div>
             <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Total</h6>
-                <h4 class="mb-0 text-info">₱{{ number_format($totalCollected, 2) }}</h4>
+                <h6 class="text-muted mb-1">GCash</h6>
+                <h4 class="mb-0 text-info">₱{{ number_format($totalGCash, 2) }}</h4>
             </div>
+
             <div class="card shadow-sm text-center p-2 border-bottom-warning" style="min-width: 200px;">
                 <h6 class="text-muted mb-1">Pending Payments</h6>
                 <h4 class="mb-0 text-warning">{{ $unsettledCount }}</h4>
@@ -66,7 +67,7 @@
 
                             <td>{{ $payment->transaction_no ?? 'N/A'}}</td>
                             <td>{{ $payment->staff->name ?? '—' }}</td>
-                            <td>{{ $payment->created_at->format('F d, Y - h:i A') }}</td>
+                            <td>{{ $payment->created_at->format('F d, Y h:i A') }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -81,6 +82,7 @@
  $('#paymentsTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
+        order: [],
         dom: '<"d-flex justify-content-between align-items-center mb-2"lBf>rtip', 
         buttons: [
            

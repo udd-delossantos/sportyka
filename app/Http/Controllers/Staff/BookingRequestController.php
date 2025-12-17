@@ -26,7 +26,6 @@ class BookingRequestController extends Controller
        
             $requests = BookingRequest::with(['user', 'court'])
             ->where('status', 'pending')
-            ->latest()
             ->get();
 
             
@@ -39,15 +38,18 @@ class BookingRequestController extends Controller
 
 
             $requestCount = BookingRequest::with(['user', 'court'])
+            ->whereDate('created_at', Carbon::today())
             ->count();
 
             $pendingCount = BookingRequest::where('status', 'pending')
             ->count();
 
             $approvedCount = BookingRequest::where('status', 'approved')
+            ->whereDate('created_at', Carbon::today())
             ->count();
 
             $cancelledCount = BookingRequest::where('status', 'cancelled')
+            ->whereDate('created_at', Carbon::today())
             ->count();
         
 
@@ -88,6 +90,7 @@ class BookingRequestController extends Controller
     public function cancel($id) { 
         $request = BookingRequest::findOrFail($id); 
         $request->status = 'cancelled'; 
+        $request->staff_id = Auth::id();
         $request->save(); 
         return redirect()->back()->with('success', 'Booking cancelled successfully.'); 
     }

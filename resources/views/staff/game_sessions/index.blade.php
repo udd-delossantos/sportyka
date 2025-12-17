@@ -33,6 +33,10 @@
             @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
             @endif
+            @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+            
 
             <div class="row">
                 @php $activeSessions = $sessions->whereIn('status', ['pending', 'ongoing']); @endphp @forelse($activeSessions as $session)
@@ -115,11 +119,26 @@
             <h6 class="mb-0"><strong>Today's Bookings</strong></h6>
             <!-- Court Filter Dropdown -->
             <select id="bookingCourtFilter" class="form-control form-control-sm w-auto">
-                <option value="">All Courts</option>
+                <option value="">
+                    All Courts
+                    @if($totalBookingCount > 0)
+                        ({{ $totalBookingCount }})
+                    @endif
+                </option>
+
                 @foreach($courts as $court)
-                    <option value="{{ $court->name }}">{{ $court->name }}</option>
+                    @php
+                        $count = $bookingCountByCourt[$court->id] ?? 0;
+                    @endphp
+                    <option value="{{ $court->name }}">
+                        {{ $court->name }}
+                        @if($count > 0)
+                            ({{ $count }})
+                        @endif
+                    </option>
                 @endforeach
             </select>
+
         </div>
 
         @php
@@ -180,11 +199,12 @@
                         </div>
                     </div>
                 @empty
-                    <div class="card shadow">
+                    <div class="card shadow" id="noBookingsMessage">
                         <div class="card-body text-center">
                             <p class="mb-0">No Confirmed Bookings Today.</p>
                         </div>
                     </div>
+
                 @endforelse
             </div>
         </div>
@@ -198,16 +218,29 @@
             <h6 class="mb-0"><strong>Customers in Queue</strong></h6>
             <!-- Responsive Sort Dropdown -->
             <select id="courtSort" class="form-control form-control-sm w-auto">
-                <option value="all">All Courts</option>
+                <option value="all">
+                    All Courts
+                    @if($totalQueueCount > 0)
+                        ({{ $totalQueueCount }})
+                    @endif
+                </option>
+
                 @foreach($courts as $court)
-                <option value="{{ $court->name }}">{{ $court->name }}</option>
+                    @php
+                        $count = $queueCountByCourt[$court->id] ?? 0;
+                    @endphp
+                    <option value="{{ $court->name }}">
+                        {{ $court->name }}
+                        @if($count > 0)
+                            ({{ $count }})
+                        @endif
+                    </option>
                 @endforeach
             </select>
+
         </div>
         <!-- Added fixed height & scroll -->
         <div class="card-body" style="max-height: 500px; overflow-y: auto; padding: 1rem;">
-            @if(session('error'))<div class="alert alert-danger">{{ session('error') }}@endif
-            @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div> @endif
             <div id="queueList">
                 @forelse($queues as $queue)
                 <div class="card shadow-sm mb-3 queue-item bg-light" data-court="{{ $queue->court->name }}">
@@ -244,12 +277,14 @@
                     </div>
                 </div>
                 @empty
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <p class="mb-0">No Customers in Queue.</p>
-                    </div>
-                </div>
+               
+
                 @endforelse
+                 <div class="card shadow" id="noQueuesMessage">
+    <div class="card-body text-center">
+        <p class="mb-0">No Customers in Queue.</p>
+    </div>
+</div>
             </div>
         </div>
     </div>
@@ -277,20 +312,20 @@
                 <table class="table table-bordered table-hover" id="completedSessionsTable">
                     <thead>
                         <tr>
-                            <th>Court</th>
                             <th>Customer</th>
+                            <th>Court</th>
                             <th>Type</th>
                             <th>Start</th>
                             <th>End</th>
                             <th>Duration</th>
-                            <th>Amount</th>
+                            <th>Bill</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($completedSessions as $session)
                         <tr>
-                            <td>{{ $session->court->name }}</td>
                             <td>{{ $session->customer_name }}</td>
+                            <td>{{ $session->court->name }}</td>
                             <td>{{ ucfirst($session->session_type) }}</td>
                             <td>{{ \Carbon\Carbon::parse($session->start_time)->format('h:i A') }}</td>
                             <td>{{ \Carbon\Carbon::parse($session->end_time)->format('h:i A') }}</td>
@@ -329,15 +364,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function filterBookings(selectedCourt) {
-        bookingCards.forEach(card => {
-            let court = card.getAttribute('data-court').toLowerCase();
-            if (selectedCourt === "" || court === selectedCourt) {
-                card.style.display = "block";
-            } else {
-                card.style.display = "none";
-            }
-        });
+    let visibleCount = 0;
+
+    document.querySelectorAll('.booking-card').forEach(card => {
+        let court = card.dataset.court.toLowerCase();
+        if (selectedCourt === "" || court === selectedCourt) {
+            card.style.display = "block";
+            visibleCount++;
+        } else {
+            card.style.display = "none";
+        }
+    });
+
+    // Toggle empty message
+    const emptyMsg = document.getElementById('noBookingsMessage');
+    if (emptyMsg) {
+        emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
     }
+}
+
 
     // Queue filter
     const courtSort = document.getElementById("courtSort");
@@ -357,15 +402,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function filterQueues(selectedCourt) {
-        queueItems.forEach(item => {
-            const court = item.getAttribute("data-court");
-            if (selectedCourt === "all" || court === selectedCourt) {
-                item.style.display = "block";
-            } else {
-                item.style.display = "none";
-            }
-        });
+    let visibleCount = 0;
+
+    document.querySelectorAll('#queueList .queue-item').forEach(item => {
+        const court = item.dataset.court;
+        if (selectedCourt === "all" || court === selectedCourt) {
+            item.style.display = "block";
+            visibleCount++;
+        } else {
+            item.style.display = "none";
+        }
+    });
+
+    // Toggle empty message
+    const emptyMsg = document.getElementById('noQueuesMessage');
+    if (emptyMsg) {
+        emptyMsg.style.display = visibleCount === 0 ? 'block' : 'none';
     }
+}
+
 });
 
 // Timers for active sessions
@@ -454,7 +509,7 @@ $(document).ready(function () {
     var table = $('#completedSessionsTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
-         order: [[2, 'desc']],
+         order: [],
         dom:
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
             '<"bottom d-flex justify-content-between align-items-center"ip>',

@@ -44,7 +44,7 @@
                         <a class="collapse-item" href="{{ route('admin.game_sessions.index') }}">Sessions</a>
                         <a class="collapse-item" href="{{ route('admin.payments.index') }}">Payments</a>
                         <a class="collapse-item" href="{{ route('admin.queues.index') }}">Queues</a>
-                        <a class="collapse-item" href="{{ route('admin.bookings.index') }}">Booking</a>
+                        <a class="collapse-item" href="{{ route('admin.bookings.index') }}">Bookings Schedule</a>
                         <a class="collapse-item" href="{{ route('admin.booking_requests.index') }}">Booking Requests</a>
 
                     </div>

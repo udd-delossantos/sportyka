@@ -93,7 +93,7 @@ $(document).ready(function() {
     var table = $('#sessionsTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
-         order: [[2, 'desc']],
+         order: [],
         dom: 
             // top (search removed since you already have buttons outside)
             '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +

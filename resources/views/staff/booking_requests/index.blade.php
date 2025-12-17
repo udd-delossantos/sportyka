@@ -6,21 +6,21 @@
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
             <h2 class="mb-0 text-primary"><strong>Booking Requests</strong></h2>  
             <div class="d-flex gap-3">
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 120px;">
-                    <h6 class="text-muted mb-1">All</h6>
+                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
+                    <h6 class="text-muted mb-1">All Requests Today</h6>
                     <h4 class="mb-0 text-primary">{{ $requestCount }}</h4>
                 </div>
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-warning" style="min-width: 120px;">
-                    <h6 class="text-muted mb-1">Pending</h6>
-                    <h4 class="mb-0 text-warning">{{ $pendingCount}}</h4>
-                </div>
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 120px;">
-                    <h6 class="text-muted mb-1">Approved</h6>
+                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
+                    <h6 class="text-muted mb-1">Approved Today</h6>
                     <h4 class="mb-0 text-success">{{ $approvedCount }}</h4>
                 </div>
-                <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 120px;">
-                    <h6 class="text-muted mb-1">Cancelled</h6>
+                <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
+                    <h6 class="text-muted mb-1">Cancelled Today</h6>
                     <h4 class="mb-0 text-danger">{{ $cancelledCount }}</h4>
+                </div>
+                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-warning" style="min-width: 200px;">
+                    <h6 class="text-muted mb-1">Pending</h6>
+                    <h4 class="mb-0 text-warning">{{ $pendingCount}}</h4>
                 </div>
             </div>
         </div>
@@ -159,7 +159,7 @@
             @endif
 
             <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="bookingRequestsTable">
+                <table class="table table-bordered table-sm table-hover" id="bookingRequestsTable">
                     <thead>
                         <tr>
                             <th>Customer</th>
@@ -169,8 +169,10 @@
                             <th>Duration</th>
                             <th>Amount</th>
                             <th>Transaction No</th>
-                            <!--<th>Approved By</th>-->
+                            
                             <th>Requested At</th>
+                            <th>Actioned by</th>
+                            <th>Actioned at</th>
                             <th class="text-center">Status</th>
                         </tr>
                     </thead>
@@ -187,10 +189,15 @@
                                 <td>{{ $processedRequest->expected_hours }}h {{ $processedRequest->expected_minutes }}m</td>
                                 <td>₱{{ number_format($processedRequest->amount, 2) }}</td>
                                 <td>{{ $processedRequest->transaction_no ?? '—' }}</td>
-                                <!--<td>{{ $processedRequest->staff->name ?? '—' }}</td>-->
+                                
                                 <td>
-    {{ \Carbon\Carbon::parse($processedRequest->created_at)->format('F d, Y') }}
-</td>
+                                    {{ \Carbon\Carbon::parse($processedRequest->created_at)->format('F d, Y') }}
+                                </td>
+                                <td>{{ $processedRequest->staff->name ?? '—' }}</td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($processedRequest->updated_at)->format('F d, Y h:i A') }}
+                                </td>
+
 
                                 <td class="text-light text-center">
                                     <span class="badge bg-{{ 

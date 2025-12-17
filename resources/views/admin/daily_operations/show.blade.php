@@ -55,9 +55,9 @@
                         <td><strong>Total: {{  $overallBookingCount }}</strong></td>
                         <td><strong>Total: {{ $overallWalkinCount }}</strong></td>
                         <td><strong>Overall: {{ $overallBookingCount + $overallWalkinCount }}</strong></td>
-                        <td><strong>Total: ₱{{ $overallCash   }}</strong></td>
-                        <td><strong>Total: ₱{{ $overallGcash }}</strong></td>
-                        <td><Strong>Total: ₱{{ $overallConfirmed }}</Strong></td>
+                        <td><strong>Total: ₱{{ number_format($overallCash, 2)   }}</strong></td>
+                        <td><strong>Total: ₱{{ number_format($overallGcash, 2) }}</strong></td>
+                        <td><Strong>Total: ₱{{ number_format($overallConfirmed, 2) }}</Strong></td>
                         <td><strong>Overall: ₱{{ number_format($overallPayments, 2) }}</strong></td>
                     </tr>
                 </tbody>

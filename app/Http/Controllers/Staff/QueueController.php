@@ -17,7 +17,16 @@ class QueueController extends Controller
    public function index()
 {
     $active = DailyOperation::where('status', 'open')->first();
-    $courts = Court::all();
+    $courts = Court::withCount([
+    'queues as waiting_count' => function ($query) use ($active) {
+        $query->where('status', 'waiting');
+
+        if ($active) {
+            $query->where('daily_operation_id', $active->id);
+        }
+    }
+])->get();
+
 
     $waitingQueues = collect();
     $processedQueues = collect();
@@ -52,18 +61,37 @@ class QueueController extends Controller
             ->orderByDesc('updated_at')
             ->get();
 
+            // 💰 Queue collections (COMPLETED only)
+            $queueCashCollected = Queue::where('daily_operation_id', $active->id)
+                ->whereNull('transaction_no')
+                ->sum('amount');
+
+            $queueGCashCollected = Queue::where('daily_operation_id', $active->id)
+                ->whereNotNull('transaction_no')
+                ->sum('amount');
+
+            $queueTotalCollected = $queueCashCollected + $queueGCashCollected;
+
+
+
         $waitingCount = $waitingQueues->count();
         $calledCount = $processedQueues->where('status', 'called')->count();
         $completedCount = Queue::where('daily_operation_id', $active->id)->where('status', 'completed')->count();
         $skippedCount = $processedQueues->where('status', 'skipped')->count();
     } else {
         $waitingCount = $calledCount = $completedCount = $skippedCount = 0;
+        $queueCashCollected = 0;
+        $queueGCashCollected = 0;
+        $queueTotalCollected = 0;
     }
 
     return view('staff.queues.index', compact(
         'courts',
         'waitingQueues',
         'processedQueues',
+        'queueCashCollected',
+        'queueGCashCollected',
+        'queueTotalCollected',
         'waitingCount',
         'calledCount',
         'completedCount',
@@ -119,7 +147,7 @@ $ongoingByCourt = GameSession::where('status', 'ongoing')
 
     
 
-$bookedByCourt = Booking::whereIn('status', ['confirmed', 'completed'])
+$bookedByCourt = Booking::whereIn('status', ['confirmed'])
     ->whereDate('booking_date', now()->toDateString())
     ->orderBy('start_time')
     ->get()
@@ -163,13 +191,14 @@ $bookedByCourt = Booking::whereIn('status', ['confirmed', 'completed'])
 
         // 🛑 Check conflicts
         $hasBookingConflict = Booking::where('court_id', $validated['court_id'])
-            ->whereDate('start_time', now()->toDateString())
-            ->where('status', 'confirmed')
-            ->where(function ($query) use ($validated) {
-                $query->where('start_time', '<', $validated['end_time'])
-                      ->where('end_time', '>', $validated['start_time']);
-            })
-            ->exists();
+    ->where('booking_date', now()->toDateString())
+    ->where('status', 'confirmed')
+    ->where(function ($query) use ($validated) {
+        $query->where('start_time', '<', $validated['end_time'])
+              ->where('end_time', '>', $validated['start_time']);
+    })
+    ->exists();
+
 
         if ($hasBookingConflict) {
             return redirect()->back()->with('error', 'Cannot create queue - overlaps with a confirmed booking for this court today.');

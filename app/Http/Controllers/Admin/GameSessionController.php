@@ -31,7 +31,7 @@ class GameSessionController extends Controller
             
             $sessions = GameSession::with('court')
             ->where('daily_operation_id', $active->id) // filter to current day
-            ->latest()
+            ->orderBy('created_at', 'desc')
             ->get();
 
             $completedSessions = GameSession::where('status', 'completed')

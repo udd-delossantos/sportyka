@@ -20,12 +20,26 @@ class QueueController extends Controller
             $calledCount = 0;
             $completedCount = 0;
             $skippedCount = 0;
+            $queueCashCollected = 0;
+            $queueGCashCollected = 0;
+            $queueTotalCollected = 0;
 
         } else {
             $queues = Queue::with(['court', 'staff'])
             ->where('daily_operation_id', $active->id)
             ->latest()
             ->get(); // No get()
+
+             // 💰 Queue collections (COMPLETED only)
+            $queueCashCollected = Queue::where('daily_operation_id', $active->id)
+                ->whereNull('transaction_no')
+                ->sum('amount');
+
+            $queueGCashCollected = Queue::where('daily_operation_id', $active->id)
+                ->whereNotNull('transaction_no')
+                ->sum('amount');
+
+            $queueTotalCollected = $queueCashCollected + $queueGCashCollected;
 
              $waitingCount = Queue::where('status', 'waiting')
             ->where('daily_operation_id', $active->id)
@@ -47,6 +61,13 @@ class QueueController extends Controller
                 
         }
 
-    return view('admin.queues.index', compact('queues','waitingCount','calledCount','completedCount','skippedCount'));
+    return view('admin.queues.index', compact('queues',
+    'waitingCount',
+    'calledCount',
+    'completedCount',
+    'skippedCount', 
+    'queueCashCollected', 
+    'queueGCashCollected', 
+    'queueTotalCollected'));
     }
 }

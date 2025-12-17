@@ -101,7 +101,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Sessions (Completed)
+                                Total Sessions (Today)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $overallBookingCount + $overallWalkinCount }}</div>
                         </div>
@@ -120,12 +120,12 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Walk-in Sessions (Completed)
+                                Walk-in Sessions 
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $overallWalkinCount }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-check fa-2x text-gray-300"></i>
+                            <i class="fas fa-person-walking fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -139,12 +139,12 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Booking Sessions (Completed)
+                                Booking Sessions
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $overallBookingCount }}</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-check fa-2x text-gray-300"></i>
+                            <i class="fas fa-bookmark fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>
@@ -158,7 +158,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                Confirmed Bookings
+                                Approved Bookings (Today)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $confirmedBookingCount }}</div>
                         </div>
@@ -245,8 +245,8 @@
                         <td><strong>Total: {{ $overallBookingCount }}</strong></td>
                         <td><strong>Total: {{ $overallWalkinCount }}</strong></td>
                         <td><strong>Overall: {{ $overallBookingCount + $overallWalkinCount }}</strong></td>
-                        <td><strong>Total: ₱{{ $overallCash }}</strong></td>
-                        <td><strong>Total: ₱{{ $overallGcash }}</strong></td>
+                        <td><strong>Total: ₱{{ number_format ($overallCash, 2) }}</strong></td>
+                        <td><strong>Total: ₱{{ number_format($overallGcash, 2) }}</strong></td>
                         <td><strong>Total: ₱{{ number_format($overallConfirmed, 2) }}</strong></td>
                         <td><strong>Overall: ₱{{ number_format($overallPayments, 2) }}</strong></td>
                     </tr>

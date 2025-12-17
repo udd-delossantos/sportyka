@@ -15,7 +15,9 @@ use Carbon\Carbon;
 class BookingController extends Controller
 {
     public function index()
+    
     {
+        
 
         $now = Carbon::now();
 
@@ -48,25 +50,46 @@ class BookingController extends Controller
             ];
         });
 
-        $confirmedCount = Booking::where('status', 'confirmed')->count();
-        $ongoingCount = Booking::where('status', 'ongoing')->count();
-
-       
-
-            $completedTodayCount = 0;
-            $voidedTodayCount = 0;
-
-
-            $completedTodayCount = Booking::where('status', 'completed')
-            ->whereDate('created_at', Carbon::today())
-            ->count();
-
-            $voidedTodayCount = Booking::where('status', 'voided')
-            ->whereDate('created_at', Carbon::today())
-            ->count();
+        
         
 
-        return view('staff.bookings.index', compact('bookings', 'requests', 'events', 'confirmedCount', 'ongoingCount', 'completedTodayCount', 'voidedTodayCount'));
+
+        $operation = \App\Models\DailyOperation::where('status', 'open')->first();
+
+
+        if ($operation) {
+            $confirmedBookingsTotal = Booking::where('status', 'confirmed')
+                ->whereDate('created_at', $operation->date)
+                ->sum('amount');
+
+            $confirmedTodayCount = Booking::whereIn('status', ['confirmed', 'ongoing'])
+                ->where('booking_date', Carbon::today())
+                ->count();
+
+       // $ongoingCount = Booking::where('status', 'ongoing')->count();
+
+
+
+        $completedTodayCount = Booking::where('status', 'completed')
+        ->where('booking_date', Carbon::today())
+        ->count();
+
+        $voidedTodayCount = Booking::where('status', 'voided')
+        ->where('booking_date', Carbon::today())
+        ->count();
+            
+        }else{
+        $completedTodayCount = 0;
+        $voidedTodayCount = 0;
+        $confirmedBookingsTotal = 0;
+        $confirmedTodayCount = 0;
+
+        }
+
+        
+
+
+        return view('staff.bookings.index', compact('bookings', 'requests', 'events', 'confirmedTodayCount', 'completedTodayCount', 'voidedTodayCount', 'confirmedBookingsTotal'));
     }
 
     public function approve($id)

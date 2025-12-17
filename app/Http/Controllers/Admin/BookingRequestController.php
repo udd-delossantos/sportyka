@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\GameSession;
 use App\Models\BookingRequest;
 use App\Models\Booking;
-
+use Carbon\Carbon;
 use App\Models\Court;
 
 
@@ -28,15 +28,18 @@ class BookingRequestController extends Controller
 
 
             $requestCount = BookingRequest::with(['user', 'court'])
+            ->whereDate('created_at', Carbon::today())
             ->count();
 
             $pendingCount = BookingRequest::where('status', 'pending')
             ->count();
 
             $approvedCount = BookingRequest::where('status', 'approved')
+            ->whereDate('created_at', Carbon::today())
             ->count();
 
             $cancelledCount = BookingRequest::where('status', 'cancelled')
+            ->whereDate('created_at', Carbon::today())
             ->count();
         
 

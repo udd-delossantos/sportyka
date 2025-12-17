@@ -37,19 +37,26 @@ class GameSessionController extends Controller
             $queuesCount = 0;
             $sessionCount = 0;
             $availCourtsCount = 0;
+
+            $bookingCountByCourt = collect();
+            $queueCountByCourt   = collect();
+            $totalBookingCount   = 0;
+            $totalQueueCount     = 0;
+
             
 
         } else {
             $sessions = GameSession::with('court')
                 ->where('staff_id', Auth::id())
                 ->where('daily_operation_id', $active->id) // filter to current day
+                ->orderBy('end_time', 'asc')
                 ->get();
 
             $completedSessions = GameSession::with('court')
                 ->where('staff_id', Auth::id())
                 ->where('daily_operation_id', $active->id)
                 ->where('status', 'completed')
-                ->orderBy('id', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->get();
 
 
@@ -63,6 +70,24 @@ class GameSessionController extends Controller
                 ->where('status', 'waiting')
                 ->where('daily_operation_id', $active->id)
                 ->get();
+
+            $bookingCountByCourt = Booking::where('booking_date', now()->toDateString())
+                ->where('status', 'confirmed')
+                ->get()
+                ->groupBy('court_id')
+                ->map->count();
+
+            $totalBookingCount = $bookingCountByCourt->sum();
+
+            $queueCountByCourt = Queue::where('status', 'waiting')
+                ->where('daily_operation_id', $active->id)
+                ->get()
+                ->groupBy('court_id')
+                ->map->count();
+
+            $totalQueueCount = $queueCountByCourt->sum();
+
+
 
             $courts = Court::all();
 
@@ -84,7 +109,23 @@ class GameSessionController extends Controller
 
         }
 
-        return view('staff.game_sessions.index', compact('sessions', 'completedSessions', 'bookings', 'queues', 'courts', 'bookingCount', 'queuesCount', 'sessionCount', 'availCourtsCount'));
+        return view('staff.game_sessions.index', compact(
+            'sessions',
+            'completedSessions',
+            'bookings',
+            'queues',
+            'courts',
+            'bookingCount',
+            'queuesCount',
+            'sessionCount',
+            'availCourtsCount',
+            'bookingCountByCourt',
+            'queueCountByCourt',
+            'totalBookingCount',
+            'totalQueueCount'
+        ));
+
+
 
     }
 
@@ -239,32 +280,50 @@ class GameSessionController extends Controller
 
 
     private function sweepExpiredSessions(): void
-    {
-        // Find all sessions that should already be finished
-        $expired = \App\Models\GameSession::with(['court'])
-            ->whereIn('session_type',['walk-in','booking','queue'])
-            ->where('status', 'ongoing')
-            ->where('end_time', '<=', now())
-            ->get();
+{
+    $expired = GameSession::with('court')
+        ->whereIn('session_type', ['walk-in', 'booking', 'queue'])
+        ->where('status', 'ongoing')
+        ->whereNotNull('end_time')
+        ->where('end_time', '<=', now())
+        ->get();
 
-        foreach ($expired as $s) {
-            // (Optional) compute amount if you charge automatically
-            if ($s->court && !$s->amount_paid && $s->start_time) {
-                $minutes = \Carbon\Carbon::parse($s->start_time)->diffInMinutes($s->end_time);
-                $hours   = (int) ceil($minutes / 60);
-                $rate    = $s->court->hourly_rate;
-                $finalRate = in_array($s->session_type, ['booking','queue']) ? ($rate / 2) : $rate;
-                $s->amount_paid = $hours * $finalRate;
-            }
+    foreach ($expired as $s) {
 
-            $s->status = 'completed';
-            $s->save();
+        // Optional: auto-compute amount if not yet paid
+        if ($s->court && !$s->amount_paid && $s->start_time) {
+            $minutes = Carbon::parse($s->start_time)->diffInMinutes($s->end_time);
+            $hours   = ceil($minutes / 60);
+            $rate    = $s->court->hourly_rate;
 
-            Court::where('id', $session->court_id)->update(['status' => 'available']);
+            $finalRate = in_array($s->session_type, ['booking', 'queue'])
+                ? ($rate / 2)
+                : $rate;
 
-            
+            $s->amount_paid = $hours * $finalRate;
+        }
+
+        // ✅ Mark session completed
+        $s->status = 'completed';
+        $s->save();
+
+        // ✅ THIS IS THE FIX
+        Court::where('id', $s->court_id)->update([
+            'status' => 'available'
+        ]);
+
+        // Optional: sync related records
+        if ($s->session_type === 'booking' && $s->booking_id) {
+            Booking::where('id', $s->booking_id)
+                ->update(['status' => 'completed']);
+        }
+
+        if ($s->session_type === 'queue' && $s->queue_id) {
+            Queue::where('id', $s->queue_id)
+                ->update(['status' => 'completed']);
         }
     }
+}
 
 
     public function end($id)

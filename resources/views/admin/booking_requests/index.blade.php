@@ -8,20 +8,20 @@
             <h2 class="mb-0 text-primary"><strong>Booking Requests</strong></h2>  
             <div class="d-flex gap-3">
                 <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">All</h6>
+                    <h6 class="text-muted mb-1">All Requests Today</h6>
                     <h4 class="mb-0 text-primary">{{ $requestCount }}</h4>
+                </div>
+                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
+                    <h6 class="text-muted mb-1">Approved Today</h6>
+                    <h4 class="mb-0 text-success">{{ $approvedCount }}</h4>
+                </div>
+                <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
+                    <h6 class="text-muted mb-1">Cancelled Today</h6>
+                    <h4 class="mb-0 text-danger">{{ $cancelledCount }}</h4>
                 </div>
                 <div class="card shadow-sm text-center p-2 mr-1 border-bottom-warning" style="min-width: 200px;">
                     <h6 class="text-muted mb-1">Pending</h6>
                     <h4 class="mb-0 text-warning">{{ $pendingCount}}</h4>
-                </div>
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Approved</h6>
-                    <h4 class="mb-0 text-success">{{ $approvedCount }}</h4>
-                </div>
-                <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Cancelled</h6>
-                    <h4 class="mb-0 text-danger">{{ $cancelledCount }}</h4>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
             @endif
 
             <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="bookingRequestsTable">
+                <table class="table table-bordered table-sm table-hover" id="bookingRequestsTable">
                     <thead>
                         <tr>
                             <th>Customer</th>
@@ -64,7 +64,8 @@
                             <th>Amount</th>
                             <th>Reference No.</th>
                             <th>Requested At</th>
-                            <!--<th>Handled By</th>-->
+                            <th>Actioned By</th>
+                            <th>Actioned At</th>
                             <th class="text-center">Status</th>
                         </tr>
                     </thead>
@@ -84,7 +85,11 @@
                                  <td>
                                         {{ \Carbon\Carbon::parse($request->created_at)->format('F d, Y') }}
                                     </td>
-                                <!--<td>{{ $request->staff->name ?? '—' }}</td>-->
+                                <td>{{ $request->staff->name ?? '—' }}</td>
+                                <td>
+                                    {{ \Carbon\Carbon::parse($request->updated_at)->format('F d, Y h:i A') }}
+                                </td>
+
                                 <td class="text-light text-center">
                                     <span class="badge bg-{{ 
                                         $request->status === 'pending' ? 'warning' : 

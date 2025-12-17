@@ -72,12 +72,28 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-sm-6">
+                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label>GCash Ref No. (Leave blank if cash)</label>
-                                        <input type="text" name="transaction_no" class="form-control" maxlength="13" minlength="13" value="{{ old('transaction_no') }}">
+                                    <label>GCash Ref No. (Leave blank if cash)</label>
+                                    <input
+                                        type="text"
+                                        name="transaction_no"
+                                        id="transaction_no"
+                                        class="form-control"
+                                        maxlength="13"
+                                        inputmode="numeric"
+                                        pattern="\d{13}"
+                                        placeholder="13-digit GCash Ref No."
+                                        value="{{ old('transaction_no') }}"
+                                    >
+                                    <div class="invalid-feedback">
+                                        Please enter exactly 13 digits (numbers only).
                                     </div>
                                 </div>
+
+                                </div>
+                                
+
                                 <div class="col-sm-6">
                                     <div class="mb-3">
                                         <label>50% Down Payment</label>
@@ -345,6 +361,53 @@ const bookedCourtBadge = document.getElementById('bookedCourtBadge');
     autoFillStartTime(); // ✅ added
     renderBookedSlots();
 
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const transactionInput = document.getElementById('transaction_no');
+    if (!transactionInput) return;
+
+    // Block letters & symbols while typing
+    transactionInput.addEventListener('keydown', function (e) {
+        const allowedKeys = [
+            'Backspace','Delete','ArrowLeft','ArrowRight',
+            'Tab','Home','End'
+        ];
+
+        if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) return;
+
+        // allow digits only
+        if (!/^\d$/.test(e.key)) {
+            e.preventDefault();
+            return;
+        }
+
+        // max 13 digits
+        if (transactionInput.value.length >= 13) {
+            e.preventDefault();
+        }
+    });
+
+    // Sanitize pasted / mobile input
+    transactionInput.addEventListener('input', function () {
+        transactionInput.value = transactionInput.value
+            .replace(/\D/g, '')
+            .slice(0, 13);
+    });
+
+    // Optional strict validation on submit
+    const form = transactionInput.closest('form');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            if (transactionInput.value && transactionInput.value.length !== 13) {
+                e.preventDefault();
+                transactionInput.classList.add('is-invalid');
+                transactionInput.focus();
+            } else {
+                transactionInput.classList.remove('is-invalid');
+            }
+        });
+    }
 });
 </script>
 @endpush

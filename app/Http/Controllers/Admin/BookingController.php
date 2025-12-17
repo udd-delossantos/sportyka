@@ -55,20 +55,38 @@ class BookingController extends Controller
 
             $completedTodayCount = 0;
             $voidedTodayCount = 0;
+            $confirmedBookingsTotal = 0;
+            $confirmedTodayCount = 0;
 
         }else{
 
             $completedTodayCount = Booking::where('status', 'completed')
-            ->whereDate('updated_at', Carbon::today()) // always today's date
+            ->where('booking_date', Carbon::today())// always today's date
             ->count();
 
             $voidedTodayCount = Booking::where('status', 'voided')
-            ->whereDate('updated_at', Carbon::today()) // always today's date
+            ->where('booking_date', Carbon::today()) // always today's date
             ->count();
+
+            $confirmedTodayCount = Booking::whereIn('status', ['confirmed', 'ongoing'])
+            ->where('booking_date', Carbon::today())
+            ->count();
+
+
+             $operation = \App\Models\DailyOperation::where('status', 'open')->first();
+
+        $confirmedBookingsTotal = 0;
+
+        if ($operation) {
+            $confirmedBookingsTotal = Booking::where('status', 'confirmed')
+                ->whereDate('created_at', $operation->date)
+                ->sum('amount');
+        }
+        
 
         }
 
-        return view('admin.bookings.index', compact('bookings', 'events', 'confirmedCount', 'ongoingCount', 'completedTodayCount', 'voidedTodayCount'));
+        return view('admin.bookings.index', compact('bookings', 'events', 'confirmedCount', 'ongoingCount', 'confirmedTodayCount', 'completedTodayCount', 'voidedTodayCount', 'confirmedBookingsTotal'));
     }
 
   

@@ -5,17 +5,17 @@
         <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
             <h2 class="mb-0 text-primary"><strong>Queues</strong></h2>
         <div class="d-flex gap-3">
-            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-warning" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Waiting</h6>
-                <h4 class="mb-0 text-warning">{{ $waitingCount }}</h4>
+            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
+                <h6 class="text-muted mb-1">Total Collected</h6>
+                <h4 class="mb-0 text-primary">₱{{ number_format($queueTotalCollected, 2) }}</h4>
             </div>
             <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Called</h6>
-                <h4 class="mb-0 text-success">{{ $calledCount }}</h4>
+                <h6 class="text-muted mb-1">Cash</h6>
+                <h4 class="mb-0 text-success">₱{{ number_format($queueCashCollected, 2) }}</h4>
             </div>
             <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Completed</h6>
-                <h4 class="mb-0 text-info">{{ $completedCount }}</h4>
+                <h6 class="text-muted mb-1">GCash</h6>
+                <h4 class="mb-0 text-info">₱{{ number_format($queueGCashCollected, 2) }}</h4>
             </div>
             <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
                 <h6 class="text-muted mb-1">Skipped</h6>

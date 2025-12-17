@@ -19,7 +19,7 @@ class UserController extends Controller
         return view('admin.users.create');
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
 {
     $validated = $request->validate([
         'name' => 'required|string|max:255',
@@ -27,36 +27,28 @@ class UserController extends Controller
         'password' => [
             'required',
             'min:8',
-            'regex:/[a-z]/',      // lowercase
-            'regex:/[A-Z]/',      // uppercase
-            'regex:/[0-9]/',      // number
-            'regex:/[@$!%*#?&]/', // special character
+            'regex:/[a-z]/',
+            'regex:/[A-Z]/',
+            'regex:/[0-9]/',
+            'regex:/[@$!%*#?&]/',
         ],
         'role' => 'required|in:admin,staff,customer',
     ]);
 
     $validated['password'] = Hash::make($validated['password']);
 
-    // ✅ Create user
+    // Create user
     $user = User::create($validated);
 
-    // ✅ Force email verification
+    // Send verification email
     $user->sendEmailVerificationNotification();
 
-    
-
-if ($validated['role'] === 'staff') {
+    // ✅ ALWAYS redirect admin back to admin pages
     return redirect()
-        ->route('staff.dashboard')
-        ->with('success', 'User created. Verification email sent.');
+        ->route('admin.users.index')
+        ->with('success', 'User created successfully. Verification email sent.');
 }
 
-return redirect()
-    ->route('admin.dashboard')
-    ->with('success', 'User created. Verification email sent.');
-
-
-}
 
     public function edit(User $user) {
         return view('admin.users.edit', compact('user'));
