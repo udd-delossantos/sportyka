@@ -135,68 +135,88 @@
 
             
 
-            <!-- Step 3 -->
-            <div class="step d-none">
-                <div class="card mb-4 shadow">
-                    <div class="card-header">
-                        <h5 class="mb-0 text-primary">Partial Payment</h5>
-                    </div>
-                    <div class="card-body">
-                        {{-- GCash transaction + QR code --}}
-                        <div class="alert alert-warning mb-3">
-                            <p class="mb-0">Scan the QR code and pay the 50% down payment. Copy the 13-digit code reference number and paste it below. Please send the exact amount to avoid delays</p>
-                        </div>
-                        @php
-                            $activeQr = \App\Models\GcashQrCode::where('is_active', 1)->first();
-                        @endphp
+            
+<!-- STEP 3 : QR PAYMENT (REFERENCE INPUT REMOVED) -->
+<div class="step d-none">
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h5 class="mb-0 text-primary">Partial Payment</h5>
+        </div>
+        <div class="card-body">
 
-                        @if($activeQr)
-                            <div class="text-center mb-3">
-                                <img src="{{ asset($activeQr->file_path) }}" 
-                                    alt="Active GCash QR Code" 
-                                    class="img-fluid rounded shadow-sm" 
-                                    style="max-width:300px;">
-                            </div>
-                        @else
-                            <div class="alert alert-secondary text-center mb-3">
-                                No active GCash QR code set.
-                            </div>
-                        @endif
-
-                        
-                        <div class="mb-3">
-                            <label>50% Down Payment</label>
-                            <input type="text" id="computedAmount" class="form-control fw-bold" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="transaction_no">GCash Reference No.</label>
-                            <input type="text" name="transaction_no" id="transaction_no" class="form-control" maxlength="13" pattern="\d{13}">
-                        </div>
-                        
-                    </div>
-                </div>
+            <div class="alert alert-warning">
+                Scan the QR code and send the <strong>exact 50% down payment</strong>.
             </div>
 
-            <!-- Step 4 -->
-            <div class="step d-none">
-                <div class="card mb-4 shadow">
-                    <div class="card-header">
-                        <h5 class="mb-0 text-primary">Summary</h5>
-                    </div>
-                    <div class="card-body" id="summaryBox">
-                        <p class="text-muted mb-0">Your booking details will appear here.</p>
-                    </div>
-                </div>
+            @php
+                $activeQr = \App\Models\GcashQrCode::where('is_active',1)->first();
+            @endphp
 
-                <div class="text-center mb-4">
-                    <button type="submit" class="btn btn-success btn-lg px-5">Submit Booking</button>
+            @if($activeQr)
+                <div class="text-center mb-3">
+                    <img src="{{ asset($activeQr->file_path) }}" class="img-fluid rounded" style="max-width:300px;">
                 </div>
+            @endif
+
+            <div class="mb-3">
+                <label>50% Down Payment</label>
+                <input type="text" id="computedAmount" class="form-control fw-bold" readonly>
             </div>
 
-                <div class="d-grid gap-3 d-sm-grid justify-content-center">
-                    <button type="button" id="prevBtn" class="btn btn-secondary d-none">Back</button>
-                <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
-                </div>
+        </div>
+    </div>
+</div>
+
+<!-- STEP 4 : RECEIPT UPLOAD + OCR -->
+<div class="step d-none">
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h5 class="mb-0 text-primary">Upload GCash Receipt</h5>
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label>Upload Receipt Screenshot</label>
+                <input type="file" id="receiptImage" accept="image/*" class="form-control" required>
+            </div>
+
+            <div class="alert alert-info d-none" id="scanStatus">
+                Scanning receipt, please wait...
+            </div>
+
+            <div class="mb-3">
+                <label>Scanned Reference No. (Editable)</label>
+                <input type="text" 
+                       name="transaction_no" 
+                       id="transaction_no" 
+                       class="form-control"
+                       maxlength="13"
+                       pattern="\d{13}"
+                       required>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- STEP 5 : SUMMARY -->
+<div class="step d-none">
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h5 class="mb-0 text-primary">Summary</h5>
+        </div>
+        <div class="card-body" id="summaryBox"></div>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-success btn-lg">Submit Booking</button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between">
+    <button type="button" id="prevBtn" class="btn btn-secondary d-none">Back</button>
+    <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+</div>
 
             <!-- Navigation Buttons -->
         </form>
@@ -227,6 +247,8 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const bookings = @json($allBookings); 
@@ -590,6 +612,7 @@ if (startTimeInput) {
                 }
             }
         }
+        return true;
 
         // === NEW: enforce transaction number on Step 3 (index 2) ===
         if (stepIndex === 2) {
@@ -641,6 +664,63 @@ document.addEventListener("DOMContentLoaded", function () {
     if (selected) {
         document.getElementById('nextBtn').click(); 
     }
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const receiptInput = document.getElementById('receiptImage');
+    const transactionInput = document.getElementById('transaction_no');
+    const scanStatus = document.getElementById('scanStatus');
+
+    if (!receiptInput || !transactionInput) return;
+
+    receiptInput.addEventListener('change', async function () {
+        const file = receiptInput.files[0];
+        if (!file) return;
+
+        if (scanStatus) {
+            scanStatus.classList.remove('d-none');
+            scanStatus.innerText = 'Scanning receipt, please wait...';
+        }
+
+        try {
+            const result = await Tesseract.recognize(file, 'eng', {
+                logger: m => console.log(m)
+            });
+
+            let text = result.data.text || '';
+
+            // 🔍 Normalize OCR text (remove spaces & line breaks)
+            const normalized = text.replace(/\s+/g, '');
+
+            // ✅ Find 13-digit reference number
+            const refMatch = normalized.match(/\d{13}/);
+
+            if (refMatch) {
+                transactionInput.value = refMatch[0];
+                transactionInput.dispatchEvent(new Event('input')); // update summary
+                if (scanStatus) {
+                    scanStatus.innerText = 'Reference number detected. Please verify.';
+                }
+            } else {
+                if (scanStatus) {
+                    scanStatus.innerText = 'No reference number detected. Please enter manually.';
+                }
+            }
+
+        } catch (err) {
+            console.error(err);
+            if (scanStatus) {
+                scanStatus.innerText = 'Scan failed. Please enter reference number manually.';
+            }
+        }
+
+        setTimeout(() => {
+            if (scanStatus) scanStatus.classList.add('d-none');
+        }, 4000);
+    });
+
 });
 
 
