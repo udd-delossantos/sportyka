@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Payment;
+use App\Models\GameSession;
+use App\Models\Queue;
+use App\Models\BookingRequest;
 
 class DashboardController extends Controller
 {
@@ -28,10 +32,32 @@ class DashboardController extends Controller
         $totalCash = 0;
         $totalGcash = 0;
         $overallConfirmed = 0;
+        $ongoingSessionCount = 0;
+        $waitingQueuesCount = 0;
+        $pendingBookingCount = 0;
+        $pendingPaymentCount = 0;
+
 
 
         if ($active) {
             $courts = \App\Models\Court::all();
+
+
+            $ongoingSessionCount = GameSession::where('status','ongoing')
+            ->where('daily_operation_id', $active->id)
+            ->count();
+
+            $waitingQueuesCount = Queue::where('status', 'waiting')
+            ->where('daily_operation_id', $active->id)
+            ->count();
+
+            $pendingBookingCount = BookingRequest::where('status', 'pending')
+            ->count();
+
+            $pendingPaymentCount = GameSession::where('status', 'completed')
+            ->where('daily_operation_id', $active->id)
+            ->doesntHave('payment')
+            ->count();
 
             foreach ($courts as $court) {
                 $sessions = \App\Models\GameSession::where('court_id', $court->id)
@@ -111,7 +137,11 @@ class DashboardController extends Controller
                 'walkinCount',
                 'totalCash',
                 'totalGcash',
-                'overallConfirmed'
+                'overallConfirmed',
+                'ongoingSessionCount',
+                'waitingQueuesCount',
+                'pendingBookingCount',
+                'pendingPaymentCount'
             )
         );
     }

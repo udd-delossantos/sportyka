@@ -1,50 +1,89 @@
 @extends('layouts.admin.app')
 @section('content')
 <div class="container-fluid">
-     <div class="px-0">
-        <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
-            <h2 class="mb-0 text-primary"><strong>Sessions</strong></h2>
-        <div class="d-flex gap-3">
-            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Courts Available</h6>
-                <h4 class="mb-0 text-primary">{{ $availCourtsCount }}</h4>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Sessions</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Courts Available</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $availCourtsCount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-basketball-ball fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Ongoing Sessions</h6>
-                <h4 class="mb-0 text-success">{{ $ongoingSessions }}</h4>
-            </div>
-            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Completed Sessions</h6>
-                <h4 class="mb-0 text-info">{{ $completedSessions }}</h4>
-            </div>
-            <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Pending Sessions</h6>
-                <h4 class="mb-0 text-danger">{{ $pendingSessions }}</h4>
-            </div>
-        </div>
         </div>
 
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Ongoing Sessions</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $ongoingSessions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-running fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Completed Sessions</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $completedSessions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Pending Sessions</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $pendingSessions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><strong>All Sessions</strong></h4>
+            <h5 class="m-0 font-weight-bold text-primary"><strong>All Sessions</strong></h5>
             <!-- Export buttons -->
-            <div>
-                <button id="exportCsv" class="btn btn-info btn-sm">
-                    <i class="fas fa-file-csv"></i> CSV
-                </button>
-                <button id="exportExcel" class="btn btn-success btn-sm">
-                    <i class="fas fa-file-excel"></i> Excel
-                </button>
-                <button id="printTable" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-print"></i> Print
-                </button>
+            <div class="btn-group" role="group">
+                <button id="exportCsv" class="btn btn-sm btn-info shadow-sm"><i class="fas fa-file-csv fa-sm text-white-50"></i> CSV</button>
+                <button id="exportExcel" class="btn btn-sm btn-success shadow-sm"><i class="fas fa-file-excel fa-sm text-white-50"></i> Excel</button>
+                <button id="printTable" class="btn btn-sm btn-secondary shadow-sm"><i class="fas fa-print fa-sm text-white-50"></i> Print</button>
             </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="sessionsTable">
-                    <thead>
+                <table class="table table-bordered table-hover" id="sessionsTable" width="100%" cellspacing="0">
+                    <thead class="thead-light">
                         <tr>
                             <th>Customer Name</th>
                             <th>Court</th>
@@ -59,7 +98,7 @@
                     <tbody>
                         @foreach($sessions as $session)
                         <tr>
-                            <td>{{ $session->customer_name }}</td>
+                            <td class="font-weight-bold text-gray-800">{{ $session->customer_name }}</td>
                             <td>{{ $session->court->name }}</td>
                             <td>{{ ucfirst($session->session_type) }}</td>
                             <td>{{ $session->expected_hours }}h {{ $session->expected_minutes }}m</td>
@@ -68,13 +107,13 @@
                             <td>{{ $session->staff->name ?? 'N/A' }}</td>
                             <td class="text-light text-center">
                                 @if ($session->status === 'pending')
-                                    <span class="badge bg-warning">{{ ucfirst($session->status) }}</span>
+                                    <span class="badge bg-warning p-2">{{ ucfirst($session->status) }}</span>
                                 @elseif ($session->status === 'completed')
-                                    <span class="badge bg-info">{{ ucfirst($session->status) }}</span>
+                                    <span class="badge bg-info p-2">{{ ucfirst($session->status) }}</span>
                                 @elseif ($session->status === 'ongoing')
-                                    <span class="badge bg-success">{{ ucfirst($session->status) }}</span>
+                                    <span class="badge bg-success p-2">{{ ucfirst($session->status) }}</span>
                                 @else
-                                    <span class="badge bg-danger">{{ ucfirst($session->status) }}</span>
+                                    <span class="badge bg-danger p-2">{{ ucfirst($session->status) }}</span>
                                 @endif
                             </td>
 

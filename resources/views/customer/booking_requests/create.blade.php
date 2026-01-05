@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="container">
-    <!-- Page Header -->
     <div class="bg-white border-bottom shadow-sm py-3 mb-4">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <h1 class="h4 mb-0 text-primary">Book Session</h1>
@@ -41,7 +40,6 @@
     <div class="col-lg-8 mx-auto">
         <form action="{{ route('customer.booking_requests.store') }}" method="POST">
             @csrf
-            <!-- Step 1 -->
             <div class="step">
                 <div class="card mb-4 shadow">
                     <div class="card-header">
@@ -77,7 +75,6 @@
                 </div>
             </div>
 
-            <!-- Step 2 -->
             <div class="step d-none">
                 <div class="card mb-4 shadow">
                     <div class="card-header">
@@ -122,9 +119,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!--Display here the booked time slots-->
-                        
-                        <!-- Booked Slots Display -->
                         <div id="bookedSlotsContainer" class="mt-3" style="display:none;">
                             <h6 class="fw-bold">Booked Slots <span id="bookedDateBadge" class="badge bg-primary text-light" style="display:none;"></span></h6>
                             <div id="bookedSlotsList"></div>
@@ -136,38 +130,53 @@
             
 
             
-<!-- STEP 3 : QR PAYMENT (REFERENCE INPUT REMOVED) -->
 <div class="step d-none">
     <div class="card shadow mb-4">
-        <div class="card-header">
-            <h5 class="mb-0 text-primary">Partial Payment</h5>
+    <div class="card-header">
+        <h5 class="mb-0 text-primary">Partial Payment</h5>
+    </div>
+
+    <div class="card-body">
+        <div class="alert alert-warning">
+            Scan the QR code and send the <strong>exact 50% down payment</strong>.
         </div>
-        <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">50% Down Payment</label>
+            <h4 id="computedAmount" class="fw-bold mt-1 text-success"></h4>
+        </div>
 
-            <div class="alert alert-warning">
-                Scan the QR code and send the <strong>exact 50% down payment</strong>.
-            </div>
+        @php 
+            $activeQr = \App\Models\GcashQrCode::where('is_active',1)->first(); 
+        @endphp
 
-            @php
-                $activeQr = \App\Models\GcashQrCode::where('is_active',1)->first();
-            @endphp
+        @if($activeQr)
+            <div class="text-center mb-3">
+                <img
+                    src="{{ asset($activeQr->file_path) }}"
+                    class="img-fluid rounded shadow-sm mb-3"
+                    style="max-width: 300px"
+                    alt="GCash QR Code"
+                />
 
-            @if($activeQr)
-                <div class="text-center mb-3">
-                    <img src="{{ asset($activeQr->file_path) }}" class="img-fluid rounded" style="max-width:300px;">
+                <!-- ✅ Download Button -->
+                <div>
+                    <a 
+                        href="{{ asset($activeQr->file_path) }}" 
+                        download 
+                        class="btn btn-primary btn-sm"
+                    >
+                        <i class="fas fa-download mr-1"></i> Download QR Code
+                    </a>
                 </div>
-            @endif
-
-            <div class="mb-3">
-                <label>50% Down Payment</label>
-                <input type="text" id="computedAmount" class="form-control fw-bold" readonly>
             </div>
+        @endif
 
-        </div>
+        
     </div>
 </div>
 
-<!-- STEP 4 : RECEIPT UPLOAD + OCR -->
+</div>
+
 <div class="step d-none">
     <div class="card shadow mb-4">
         <div class="card-header">
@@ -190,7 +199,7 @@
                        name="transaction_no" 
                        id="transaction_no" 
                        class="form-control"
-                       maxlength="13"
+                       minlength="13"
                        pattern="\d{13}"
                        required>
             </div>
@@ -199,7 +208,6 @@
     </div>
 </div>
 
-<!-- STEP 5 : SUMMARY -->
 <div class="step d-none">
     <div class="card shadow mb-4">
         <div class="card-header">
@@ -208,18 +216,17 @@
         <div class="card-body" id="summaryBox"></div>
     </div>
 
-    <div class="text-center">
+    <div class="text-center mb-4">
         <button type="submit" class="btn btn-success btn-lg">Submit Booking</button>
     </div>
 </div>
 
-<div class="d-flex justify-content-between">
+<div class="text-center">
     <button type="button" id="prevBtn" class="btn btn-secondary d-none">Back</button>
     <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
 </div>
 
-            <!-- Navigation Buttons -->
-        </form>
+            </form>
         
     
 
@@ -376,28 +383,32 @@ if (startTimeInput) {
     const summaryBox = document.getElementById('summaryBox');
     const transactionInput = document.getElementById('transaction_no');
 
-    function computeAmount() {
-        const hours = parseInt(hoursInput ? hoursInput.value : 0) || 0;
-        const minutes = parseInt(minutesInput ? minutesInput.value : 0) || 0;
-        const selectedCourt = document.querySelector('input[name="court_id"]:checked');
+   function computeAmount() {
+    const hours = parseInt(hoursInput ? hoursInput.value : 0) || 0;
+    const minutes = parseInt(minutesInput ? minutesInput.value : 0) || 0;
+    const selectedCourt = document.querySelector('input[name="court_id"]:checked');
 
-        if (!selectedCourt) {
-            if (computedAmount) computedAmount.value = '';
-            return;
-        }
-
-        const rate = parseFloat(selectedCourt.getAttribute('data-rate'));
-        const totalMinutes = (hours * 60) + minutes;
-
-        if (totalMinutes <= 0 || isNaN(rate)) {
-            if (computedAmount) computedAmount.value = '';
-            return;
-        }
-
-        const ratePerMinute = rate / 60;
-        const total = totalMinutes * ratePerMinute * 0.5;
-        if (computedAmount) computedAmount.value = '₱' + total.toFixed(2);
+    if (!selectedCourt) {
+        if (computedAmount) computedAmount.textContent = '';
+        return;
     }
+
+    const rate = parseFloat(selectedCourt.getAttribute('data-rate'));
+    const totalMinutes = (hours * 60) + minutes;
+
+    if (totalMinutes <= 0 || isNaN(rate)) {
+        if (computedAmount) computedAmount.textContent = '';
+        return;
+    }
+
+    const ratePerMinute = rate / 60;
+    const total = totalMinutes * ratePerMinute * 0.5;
+
+    if (computedAmount) {
+        computedAmount.textContent = '₱' + total.toFixed(2);
+    }
+}
+
 
     function updateEndTime() {
         if (!startTimeInput) return;
@@ -427,7 +438,8 @@ if (startTimeInput) {
         const end = endTimeInput && endTimeInput.value ? new Date(`1970-01-01T${endTimeInput.value}`).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '';
         const hours = hoursInput ? hoursInput.value : 0;
         const minutes = minutesInput ? minutesInput.value : 0;
-        const dp = computedAmount ? computedAmount.value : '';
+        const dp = computedAmount ? computedAmount.textContent : '';
+
         const transactionNo = transactionInput ? transactionInput.value : '';
 
         if (!court || !date || !start || !end) {
@@ -615,23 +627,24 @@ if (startTimeInput) {
         return true;
 
         // === NEW: enforce transaction number on Step 3 (index 2) ===
-        if (stepIndex === 2) {
-            // prefer an input inside the current step; fallback to global by id
-            const tx = step.querySelector('#transaction_no') || document.getElementById('transaction_no');
-            if (!tx) {
-                showError("Transaction number is required.", stepIndex);
-                return false;
-            }
-            const digits = (tx.value || '').replace(/\D/g, '');
-            if (digits.length !== 13) {
-                tx.classList.add('is-invalid');
-                tx.focus();
-                showError("Please enter a valid 13-digit GCash transaction number.", stepIndex);
-                return false;
-            } else {
-                tx.classList.remove('is-invalid');
-            }
-        }
+        // inside your validateStep function, add this for Step 3 (index 2)
+if (stepIndex === 2) {
+    const tx = step.querySelector('#transaction_no') || document.getElementById('transaction_no');
+    if (!tx) {
+        showError("Transaction number is required.", stepIndex);
+        return false;
+    }
+    const digits = (tx.value || '').replace(/\D/g, '');
+    if (digits.length !== 13) {
+        tx.classList.add('is-invalid');
+        tx.focus();
+        showError("Please enter a valid 13-digit GCash transaction number.", stepIndex);
+        return false;
+    } else {
+        tx.classList.remove('is-invalid');
+    }
+}
+
 
         return true;
     }
@@ -672,6 +685,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const receiptInput = document.getElementById('receiptImage');
     const transactionInput = document.getElementById('transaction_no');
     const scanStatus = document.getElementById('scanStatus');
+    const computedAmountElement = document.getElementById('computedAmount');
 
     if (!receiptInput || !transactionInput) return;
 
@@ -681,7 +695,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (scanStatus) {
             scanStatus.classList.remove('d-none');
-            scanStatus.innerText = 'Scanning receipt, please wait...';
+            scanStatus.classList.remove('alert-success', 'alert-warning', 'alert-danger');
+            scanStatus.classList.add('alert-info');
+            scanStatus.innerText = 'Scanning receipt for Reference No. and Amount...';
         }
 
         try {
@@ -690,40 +706,106 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             let text = result.data.text || '';
+            console.log("OCR Text:", text); // Debugging
 
-            // 🔍 Normalize OCR text (remove spaces & line breaks)
+            // 1. === EXTRACT POTENTIAL REF NO ===
             const normalized = text.replace(/\s+/g, '');
-
-            // ✅ Find 13-digit reference number
             const refMatch = normalized.match(/\d{13}/);
+            const foundRefNo = refMatch ? refMatch[0] : null;
 
-            if (refMatch) {
-                transactionInput.value = refMatch[0];
-                transactionInput.dispatchEvent(new Event('input')); // update summary
-                if (scanStatus) {
-                    scanStatus.innerText = 'Reference number detected. Please verify.';
+            // 2. === AMOUNT CHECK LOGIC ===
+            let amountMatches = false;
+            let requiredAmount = 0;
+
+            if (computedAmountElement) {
+                // Parse "₱500.00" -> 500.00
+                const rawAmt = computedAmountElement.textContent || '';
+                requiredAmount = parseFloat(rawAmt.replace(/[^\d.]/g, '')) || 0;
+            }
+
+            if (requiredAmount > 0) {
+                // Look for patterns like "500.00", "500", "P 500.00"
+                // Remove commas to handle "1,000.00" as "1000.00"
+                const cleanTextForAmount = text.replace(/,/g, '');
+                
+                // Regex to find floating point numbers
+                const moneyRegex = /(\d+\.\d{2})/g;
+                const foundAmounts = cleanTextForAmount.match(moneyRegex);
+
+                if (foundAmounts) {
+                    // Check if ANY found number is approximately equal to or greater than required amount
+                    amountMatches = foundAmounts.some(amt => {
+                        const val = parseFloat(amt);
+                        return val >= requiredAmount; 
+                    });
                 }
-            } else {
-                if (scanStatus) {
-                    scanStatus.innerText = 'No reference number detected. Please enter manually.';
+            }
+
+            // 3. === DECISION & AUTO-FILL ===
+            if (scanStatus) {
+                scanStatus.classList.remove('alert-info');
+                
+                if (amountMatches) {
+                    // Amount is correct.
+                    if (foundRefNo) {
+                        // Correct Amount AND Ref No Found -> Auto-fill
+                        transactionInput.value = foundRefNo;
+                        transactionInput.dispatchEvent(new Event('input')); 
+
+                        scanStatus.classList.add('alert-success');
+                        scanStatus.innerHTML = `<strong>Success!</strong> Verified Amount (₱${requiredAmount.toFixed(2)}) and Ref No: ${foundRefNo}.`;
+                    } else {
+                        // Correct Amount, but Ref No Missing
+                        scanStatus.classList.add('alert-warning');
+                        scanStatus.innerHTML = `<strong>Note:</strong> Amount verified, but Reference No. not found. Please enter it manually.`;
+                    }
+                } else {
+                    // Amount INCORRECT or NOT FOUND -> DO NOT AUTO-FILL
+                    scanStatus.classList.add('alert-danger'); // Use Danger to warn user
+                    scanStatus.innerHTML = `<strong>Warning:</strong> The receipt amount does not match the required down payment (₱${requiredAmount.toFixed(2)}), or could not be read. Reference number was NOT auto-filled.`;
+                    
+                    // Clear the input just in case
+                    transactionInput.value = '';
+                    transactionInput.dispatchEvent(new Event('input')); 
                 }
             }
 
         } catch (err) {
             console.error(err);
             if (scanStatus) {
-                scanStatus.innerText = 'Scan failed. Please enter reference number manually.';
+                scanStatus.classList.remove('alert-info');
+                scanStatus.classList.add('alert-danger');
+                scanStatus.innerText = 'Scan failed. Please enter details manually.';
             }
         }
 
+        // Hide status after 8 seconds (gave more time to read warnings)
         setTimeout(() => {
             if (scanStatus) scanStatus.classList.add('d-none');
-        }, 4000);
+        }, 8000);
     });
 
+
+    
+    // --- STRICT REF # VALIDATION (13 digits only, numeric) ---
+    if (transactionInput) { 
+        transactionInput.addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "").slice(0, 13);
+            if (this.value.length === 13) {
+                this.classList.remove("is-invalid");
+            } else {
+                this.classList.add("is-invalid");
+            }
+        });
+
+        transactionInput.addEventListener("keydown", function (e) {
+            const allowKeys = ["Backspace","Delete","ArrowLeft","ArrowRight","Tab","Home","End"];
+            if (allowKeys.includes(e.key)) return;
+            if (!/^\d$/.test(e.key)) e.preventDefault();
+        });
+    }
+
 });
-
-
 
 </script>
 @endpush

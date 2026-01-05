@@ -1,86 +1,140 @@
 @csrf
-<div class="card shadow mb-4">
-  <div class="card-header pb-0">
-    <h5><strong>Court Information</strong></h5>
-  </div>
-  <div class="card-body">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label for="name" class="form-label">Court Name</label>
-          <input type="text" name="name" class="form-control" value="{{ old('name', $court->name ?? '') }}" required>
-        </div>
-      </div>  
-      <div class="col-md-6">  
-        <div class="mb-3">
-          <label for="sport" class="form-label">Sport</label>
-          <input type="text" name="sport" class="form-control" value="{{ old('sport', $court->sport ?? '') }}" required>
-        </div>
-      </div>  
-    </div>  
-
-    <div class="row">
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label for="hourly_rate" class="form-label">Hourly Rate</label>
-          <input type="number" step="0.01" name="hourly_rate" class="form-control" 
-                  value="{{ old('hourly_rate', $court->hourly_rate ?? '') }}" required>
-        </div>
-      </div>  
-
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label for="status" class="form-label">Status</label>
-          <select name="status" class="form-control" required>
-              <option value="available" {{ old('status', $court->status ?? '') == 'available' ? 'selected' : '' }}>Available</option>
-              <option value="in-use" {{ old('status', $court->status ?? '') == 'in-use' ? 'selected' : '' }}>In Use</option>
-          </select>
-        </div>
-      </div>
-    </div>   
-
-    {{-- Full width description --}}
-    <div class="mb-3">
-      <label for="description" class="form-label">Description</label>
-      <textarea name="description" rows="4" class="form-control">{{ old('description', $court->description ?? '') }}</textarea>
+<div class="card shadow mb-4 border-left-primary">
+    
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Court Details</h6>
     </div>
 
-    {{-- Full width images --}}
-    <div class="mb-3">
-      <label for="images" class="form-label">Court Images</label>
-      <input type="file" name="images[]" class="form-control" multiple>
-      <small class="text-muted">You can select multiple images (JPG, PNG, Max: 2MB each)</small>
+    <div class="card-body">
+        
+
+        
+      
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="font-weight-bold text-gray-700" for="name">
+                            Court Name
+                        </label>
+                        <input type="text" name="name" id="name" 
+                               class="form-control form-control-solid" 
+                               placeholder="Enter court name" 
+                               value="{{ old('name', $court->name ?? '') }}" required>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="font-weight-bold text-gray-700" for="sport">
+                            Sport Category
+                        </label>
+                        <input type="text" name="sport" id="sport" 
+                               class="form-control form-control-solid" 
+                               placeholder="e.g. Basketball, Badminton" 
+                               value="{{ old('sport', $court->sport ?? '') }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="font-weight-bold text-gray-700" for="hourly_rate">
+                            Hourly Rate (PHP)
+                        </label>
+                        <input type="number" step="0.01" name="hourly_rate" id="hourly_rate" 
+                               class="form-control form-control-solid" 
+                               placeholder="0.00" 
+                               value="{{ old('hourly_rate', $court->hourly_rate ?? '') }}" required>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="font-weight-bold text-gray-700" for="status">
+                            Operational Status
+                        </label>
+                        <select name="status" id="status" class="form-control form-control-solid" required>
+                            <option value="available" {{ old('status', $court->status ?? '') == 'available' ? 'selected' : '' }}>Available</option>
+                            <option value="in-use" {{ old('status', $court->status ?? '') == 'in-use' ? 'selected' : '' }}>In Use / Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold text-gray-7001" for="description">
+                    Description & Amenities
+                </label>
+                <textarea name="description" id="description" rows="4" 
+                          class="form-control form-control-solid"
+                          placeholder="Describe the court surface, lighting, or rules...">{{ old('description', $court->description ?? '') }}</textarea>
+            </div>
+     
+
+        <hr class="sidebar-divider my-4">
+
+    
+
+       
+            <div class="form-group">
+                <label class="font-weight-bold text-gray-700">Upload New Images</label>
+                <div class="custom-file">
+                    <input type="file" name="images[]" class="custom-file-input" id="courtImages" multiple>
+                    <label class="custom-file-label" for="courtImages">Choose files...</label>
+                </div>
+                <div class="small mt-font-weight-bold text-gray-700-exclamation-triangle"></i> Supported formats: JPG, PNG. Max size: 2MB.
+                </div>
+            </div>
+
+            @if(isset($court) && !empty($court->images))
+                <div class="card bg-gray-100 border-0 mt-3">
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach($court->images as $index => $image)
+                                <div class="col-xl-3 col-md-4 col-6 mb-4">
+                                    <div class="card shadow-sm h-100">
+                                        <div style="height: 120px; overflow: hidden;" class="rounded-top">
+                                            <img src="{{ asset('storage/'.$image) }}" 
+                                                 class="w-100 h-100" 
+                                                 style="object-fit: cover;" 
+                                                 alt="Court Preview">
+                                        </div>
+                                        <div class="card-footer bg-white border-top-0 p-2 text-center">
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" 
+                                                       name="delete_images[]" 
+                                                       value="{{ $image }}" 
+                                                       id="delSwitch{{ $index }}">
+                                                <label class="custom-control-label font-weight-bold text-danger" for="delSwitch{{ $index }}">
+                                                    Delete
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+       
+
     </div>
 
-    @if(isset($court) && !empty($court->images))
-  <div class="mb-3">
-      <label class="form-label">Existing Images</label>
-      <div class="d-flex flex-wrap gap-3">
-          @foreach($court->images as $index => $image)
-              <div class="position-relative">
-                  <img src="{{ asset('storage/'.$image) }}" alt="Court Image" 
-                       class="img-thumbnail mb-2" 
-                       style="width: 150px; height: 120px; object-fit: cover;">
+    <div class="card-footer py-3 d-flex justify-content-end bg-gray-100">
+        <a href="{{ route('admin.courts.index') }}" class="btn btn-secondary btn mr-2">
+            <span class="icon text-white-50">
+                <i class="fas fa-times"></i>
+            </span>
+            <span class="text">Cancel</span>
+        </a>
+        <button type="submit" class="btn btn-primary btn">
+            <span class="icon text-white-50">
+                <i class="fas fa-save"></i>
+            </span>
+            <span class="text">Save Changes</span>
+        </button>
+    </div>
 
-                  <!-- Delete checkbox -->
-                  <div class="form-check text-center">
-                      <input class="form-check-input" type="checkbox" 
-                             name="delete_images[]" value="{{ $image }}" id="deleteImage{{ $index }}">
-                      <label class="form-check-label small" for="deleteImage{{ $index }}">
-                          Remove
-                      </label>
-                  </div>
-              </div>
-          @endforeach
-      </div>
-  </div>
-@endif
-
-  </div>
-  <div class="card-footer">
-  <button type="submit" class="btn btn-success btn-sm">Save</button>
-  <a href="{{ route('admin.courts.index') }}" class="btn btn-secondary btn-sm">Back</a>
 </div>
-</div>
-
-

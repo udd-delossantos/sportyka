@@ -1,127 +1,178 @@
 @extends('layouts.staff.app')
+@section('title', 'Bookings Schedule')
 
 @section('content')
 <div class="container-fluid">
-    <div class="px-0">
-        <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
-            <h2 class="mb-0 text-primary"><strong>Bookings Schedule</strong></h2>
-            <div class="d-flex gap-3">
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Collected DP Today</h6>
-                    <h4 class="mb-0 text-primary">₱{{ number_format($confirmedBookingsTotal, 2) }}</h4>
-                </div>
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Confirmed/Ongoing Today</h6>
-                    <h4 class="mb-0 text-success">{{ $confirmedTodayCount }}</h4>
-                </div>
-                <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Completed Today</h6>
-                    <h4 class="mb-0 text-info">{{ $completedTodayCount }}</h4>
-                </div>
-                <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
-                    <h6 class="text-muted mb-1">Voided Today</h6>
-                    <h4 class="mb-0 text-danger">{{ $voidedTodayCount }}</h4>
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Bookings Schedule</h1>
+      
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Collected DP Today</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₱{{ number_format($confirmedBookingsTotal, 2) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-coins fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Bookings List -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><strong>Bookings List</strong></h4>
-                 <div>
-                <button id="exportCsv" class="btn btn-info btn-sm">
-                    <i class="fas fa-file-csv"></i> CSV
-                </button>
-                <button id="exportExcel" class="btn btn-success btn-sm">
-                    <i class="fas fa-file-excel"></i> Excel
-                </button>
-                <button id="printTable" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-print"></i> Print
-                </button>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Confirmed/Ongoing</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $confirmedTodayCount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Completed Today</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $completedTodayCount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-double fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                @if(session('error'))
-                    <div class="alert alert-danger">{{ session('error') }}</div>
-                @endif
+        </div>
 
-                @if(session('success'))
-                    <div class="alert alert-success">{{ session('success') }}</div>
-                @endif
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Voided Today</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $voidedTodayCount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-ban fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover table-sm" id="bookingsTable">
-                        <thead>
-                            <tr>
-                                <th>Customer</th>
-                                <th>Court</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th>Duration</th>
-                                <th>Amount</th>
-                                <th>Reference No.</th>
-                                <th>Requested At</th>
-                                <th>Approved By</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($bookings as $booking)
-                                <tr>
-                                    <td>{{ $booking->user->name }}</td>
-                                    <td>{{ $booking->court->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('F d, Y') }}</td>
-                                    <td>
-                                        {{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }} - 
-                                        {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}
-                                    </td>
-                                    <td>{{ $booking->expected_hours }}h {{ $booking->expected_minutes }}m</td>
-                                    <td>₱{{ number_format($booking->amount, 2) }}</td>
-                                    <td>{{ $booking->transaction_no ?? '—' }}</td>
-                                    
-                                    <td>
-                                        {{ \Carbon\Carbon::parse($booking->created_at)->format('F d, Y') }}
-                                    </td>
-                                    <td>{{ $booking->staff->name ?? '—' }}</td>
+    <div class="row">
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h5 class="m-0 font-weight-bold text-primary"></i>Schedule Calendar</h5>
+                </div>
+                <div class="card-body">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
 
-                                <td class="text-light text-center">
-                                    @if ($booking->status === 'pending')
-                                        <span class="badge bg-warning">{{ ucfirst($booking->status) }}</span>
-                                    @elseif ($booking->status === 'confirmed')
-                                        <span class="badge bg-success">{{ ucfirst($booking->status) }}</span>
-                                    @elseif ($booking->status === 'ongoing')
-                                        <span class="badge bg-success">{{ ucfirst($booking->status) }}</span>
-                                    @elseif ($booking->status === 'completed')
-                                        <span class="badge bg-info">{{ ucfirst($booking->status) }}</span>
-                                    @else
-                                        <span class="badge bg-danger">{{ ucfirst($booking->status) }}</span>
-                                    @endif
-                                </td>
+        <div class="col-xl-12 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h5 class="m-0 font-weight-bold text-primary"></i>Detailed Bookings List</h5>
+                      <div class="btn-group shadow-sm" role="group">
+                        <button id="exportCsv" class="btn btn-sm btn-info">
+                            <i class="fas fa-file-csv fa-sm text-white-50 mr-1"></i> CSV
+                        </button>
+                        <button id="exportExcel" class="btn btn-sm btn-success">
+                            <i class="fas fa-file-excel fa-sm text-white-50 mr-1"></i> Excel
+                        </button>
+                        <button id="printTable" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-print fa-sm text-white-50 mr-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if(session('error'))
+                        <div class="alert alert-danger border-left-danger shadow-sm">{{ session('error') }}</div>
+                    @endif
+                    @if(session('success'))
+                        <div class="alert alert-success border-left-success shadow-sm">{{ session('success') }}</div>
+                    @endif
 
-                                    <td class="text-center">
-                                        @if($booking->status === 'confirmed')
-                                            <a href="{{ route('staff.bookings.edit', $booking->id) }}" class="btn btn-sm btn-warning">Move</a>
-                                        @else 
-                                            —
-                                        @endif
-                                    </td>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="bookingsTable" width="100%" cellspacing="0">
+                            <thead class="thead-light text-gray-800">
+                                <tr class="text-gray-800">
+                                    <th>Customer</th>
+                                    <th>Details</th>
+                                    <th>Amount</th>
+                                    <th>Ref No.</th>
+                                    <th>Requested At</th>
+                                    <th>Approved By</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                            </thead>
+                            <tbody>
+                                @foreach($bookings as $booking)
+                                    <tr>
+                                        <td class="font-weight-bold text-gray-800 align-middle">{{ $booking->user->name }}</td>
+                                          <td class="font-weight-bold text-primary">
+                                    <span class="font">{{ $booking->court->name }}</span><br>
+                                    <small class="text-muted">
+                                        {{ \Carbon\Carbon::parse($booking->booking_date)->format('F d, Y') }}<br>
+                                        {{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }} - 
+                                        {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}<br>
+                                        {{ $booking->expected_hours }}h {{ $booking->expected_minutes }}m
+                                    </small>
+                                </td>
+                                        <td class="text-success font-weight-bold align-middle">₱{{ number_format($booking->amount, 2) }}</td>
+                                        <td class="align-middle"><code>{{ $booking->transaction_no ?? '—' }}</code></td>
+                                        <td class="small align-middle">
+                                        {{ \Carbon\Carbon::parse($booking->created_at)->format('F d, Y') }}
+                                        </td>
+                                        <td class="align-middle">{{ $booking->staff->name ?? '—' }}</span></td>
+                                        <td class="text-center align-middle">
+                                            @php
+                                                $statusClass = [
+                                                    'pending' => 'warning',
+                                                    'confirmed' => 'success',
+                                                    'ongoing' => 'primary',
+                                                    'completed' => 'info',
+                                                ][$booking->status] ?? 'danger';
+                                            @endphp
+                                            <span class="badge badge-{{ $statusClass }} p-2">{{ ucfirst($booking->status) }}</span>
+                                        </td>
+                                       <td class="text-center align-middle">
+    @if($booking->status === 'confirmed')
+        <a href="{{ route('staff.bookings.edit', $booking->id) }}" 
+           class="btn btn-sm btn-warning shadow-sm" 
+           title="Move Booking">
+            <i class="fas fa-exchange-alt"></i> Move
+        </a>
+    @else 
+        <span class="text-gray-400 small">—</span>
+    @endif
+</td>
 
-        <!-- Calendar -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><strong>Calendar</strong></h4>
-            </div>
-            <div class="card-body">
-                <div id="calendar"></div>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -135,9 +186,7 @@
         color: #858796 !important;
         font-weight: bold;
         text-decoration: none; /* removes underline */
-    }
-
-    /* Date numbers (1, 2, 3...) */
+    } /* Date numbers (1, 2, 3...) */
     .fc .fc-daygrid-day-number {
         color: #858796 !important;
         text-decoration: none;
@@ -149,63 +198,40 @@
 <script>
     $(document).ready(function () {
         var table = $('#bookingsTable').DataTable({
-        pageLength: 10,
-        lengthMenu: [5, 10, 25, 50, 100],
-        order: [],
-        dom: 
-            // top (search removed since you already have buttons outside)
-            '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
-            // bottom with pagination aligned right
-            '<"bottom d-flex justify-content-between align-items-center"ip>',
-        buttons: [
-            {
-                extend: 'csvHtml5',
-                title: 'Scheduled Bookings Records',
-                exportOptions: { columns: ':not(:last-child)' }
-            },
-            {
-                extend: 'excelHtml5',
-                title: 'Scheduled Bookings Records',
-                exportOptions: { columns: ':not(:last-child)' }
-            },
-            {
-                extend: 'print',
-                title: 'Scheduled Bookings Records',
-                exportOptions: { columns: ':not(:last-child)' }
-            }
-        ]
-    });
-    // External buttons
-    $('#exportCsv').on('click', function() {
-        table.button(0).trigger();
-    });
-    $('#exportExcel').on('click', function() {
-        table.button(1).trigger();
-    });
-    $('#printTable').on('click', function() {
-        table.button(2).trigger();
-    });
+            pageLength: 10,
+            order: [], // Sort by date by default
+            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>t<"row" <"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            buttons: [
+                { extend: 'csvHtml5', title: 'Scheduled_Bookings_' + new Date().toLocaleDateString(), exportOptions: { columns: ':not(:last-child)' } },
+                { extend: 'excelHtml5', title: 'Scheduled_Bookings_' + new Date().toLocaleDateString(), exportOptions: { columns: ':not(:last-child)' } },
+                { extend: 'print', title: 'Scheduled Bookings Records', exportOptions: { columns: ':not(:last-child)' } }
+            ]
+        });
 
+        $('#exportCsv').on('click', () => table.button(0).trigger());
+        $('#exportExcel').on('click', () => table.button(1).trigger());
+        $('#printTable').on('click', () => table.button(2).trigger());
     });
 
     document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
-        if (calendarEl) {
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                themeSystem: 'bootstrap',
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-                },
-                events: @json($events),
-                height: "auto"
-            });
-            calendar.render();
-        } else {
-            console.error("Calendar div not found.");
-        }
+
+    if (calendarEl) {
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+            },
+            events: @json($events),
+            height: "auto"
+        });
+
+        calendar.render();
+    } else {
+        console.error("Calendar div not found.");
+    }
     });
 </script>
 @endpush

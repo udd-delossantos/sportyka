@@ -1,87 +1,125 @@
 @extends('layouts.admin.app')
+@section('title', 'Queues Management')
 @section('content')
 <div class="container-fluid">
-    <div class="px-0">
-        <div class="card-body d-flex justify-content-between align-items-center px-0 pt-0">
-            <h2 class="mb-0 text-primary"><strong>Queues</strong></h2>
-        <div class="d-flex gap-3">
-            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-primary" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Total Collected</h6>
-                <h4 class="mb-0 text-primary">₱{{ number_format($queueTotalCollected, 2) }}</h4>
-            </div>
-            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-success" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Cash</h6>
-                <h4 class="mb-0 text-success">₱{{ number_format($queueCashCollected, 2) }}</h4>
-            </div>
-            <div class="card shadow-sm text-center p-2 mr-1 border-bottom-info" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">GCash</h6>
-                <h4 class="mb-0 text-info">₱{{ number_format($queueGCashCollected, 2) }}</h4>
-            </div>
-            <div class="card shadow-sm text-center p-2 border-bottom-danger" style="min-width: 200px;">
-                <h6 class="text-muted mb-1">Skipped</h6>
-                <h4 class="mb-0 text-danger">{{ $skippedCount }}</h4>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Queues</h1>
+
+    </div>
+
+    <div class="row">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total DP Collected</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₱{{ number_format($queueTotalCollected, 2) }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mobile-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </div>
-</div>
-
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                     <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Cash Collected</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₱{{ number_format($queueCashCollected, 2) }}</div>
+                        </div>
+                        <div class="col-auto">
+                           <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                     <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">GCash Collected</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₱{{ number_format($queueGCashCollected, 2) }}</div>
+                        </div>
+                        <div class="col-auto">
+                             <i class="fas fa-mobile-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                     <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Skipped Queues</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $skippedCount }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><strong>All Queues</strong></h4>
-            <!-- Export buttons -->
-            <div>
-                <button id="exportCsv" class="btn btn-info btn-sm">
-                    <i class="fas fa-file-csv"></i> CSV
+            <h5 class="m-0 font-weight-bold text-primary">Queue History</h5>
+              <div class="btn-group shadow-sm" role="group">
+                <button id="exportCsv" class="btn btn-sm btn-info">
+                    <i class="fas fa-file-csv fa-sm text-white-50 mr-1"></i> CSV
                 </button>
-                <button id="exportExcel" class="btn btn-success btn-sm">
-                    <i class="fas fa-file-excel"></i> Excel
+                <button id="exportExcel" class="btn btn-sm btn-success">
+                    <i class="fas fa-file-excel fa-sm text-white-50 mr-1"></i> Excel
                 </button>
-                <button id="printTable" class="btn btn-secondary btn-sm">
-                    <i class="fas fa-print"></i> Print
+                <button id="printTable" class="btn btn-sm btn-secondary">
+                    <i class="fas fa-print fa-sm text-white-50 mr-1"></i> Print
                 </button>
             </div>
         </div>
         <div class="card-body">
-
             <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="queuesTable">
-                    <thead>
+                <table class="table table-bordered table-hover" id="queuesTable" width="100%">
+                    <thead class="thead-light">
                         <tr>
-                            <th>Queue No</th>
                             <th>Customer Name</th>
                             <th>Court</th>
+                            <th>Time Slot</th>
                             <th>Duration</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
-                            <th>Amount Paid</th>
-                            <th>Reference No.</th>
+                            <th>Amount</th>
+                            <th>Ref No.</th>
                             <th>Created By</th>
                             <th class="text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($queues as $queue)
-                        <tr>
-                             <td class="text-center">
-                                        <h6 class="text-danger"><strong>#{{ $queue->queue_number }}</strong></h6>
-                                    </td>
-                            <td>{{ $queue->customer_name ?? 'N/A' }}</td>                       
-                            <td>{{ $queue->court->name ?? 'N/A' }}</td>                    
-                            <td>{{ $queue->expected_hours }}h {{$queue->expected_minutes}}m</td>
-                            <td>{{ \Carbon\Carbon::parse($queue->start_time)->format('h:i A') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($queue->end_time)->format('h:i A') }}</td>                          
-                            <td>{{ $queue->amount }}</td>
-                            <td>{{ $queue->transaction_no ?? 'N/A' }}</td>
-                            <td>{{ $queue->staff->name }}</td>
-                             <td class="text-light text-center">
-                                <span class="badge bg-{{ 
-                                    $queue->status === 'waiting' ? 'warning' : 
-                                    ($queue->status === 'called' ? 'success' : 
-                                    ($queue->status === 'completed' ? 'info' : 'danger')) 
-                                    }}">
-                                    {{ ucfirst($queue->status) }}
-                                </span>
+                        <tr data-court="{{ $queue->court_id }}">
+                            <td class="font-weight-bold text-gray-800">{{ $queue->customer_name }}</td>
+                            <td>{{ $queue->court->name }}</td>
+                            <td>{{ \Carbon\Carbon::parse($queue->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($queue->end_time)->format('h:i A') }}</td>
+                            <td>{{ $queue->expected_hours}}h {{ $queue->expected_minutes }}m</td>
+                            <td class="text-success font-weight-bold">₱{{ number_format($queue->amount, 2) }}</td>
+                            <td><code>{{ $queue->transaction_no ?? 'Cash' }}</code></td>
+                            <td>{{ $queue->staff->name ?? '—' }}</td>
+                            <td class="text-center">
+                                 @php
+                                    $badgeClass = [
+                                        'called' => 'badge-success',
+                                        'completed' => 'badge-info',
+                                        'skipped' => 'badge-danger'
+                                    ][$queue->status] ?? 'badge-warning';
+                                @endphp
+                                <span class="badge {{ $badgeClass }} p-2 w-75">{{ ucfirst($queue->status) }}</span>
                             </td>
                         </tr>
                         @endforeach
@@ -92,42 +130,35 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-
-@endpush
-
 @push('scripts')
 <script>
 $(document).ready(function() {
+    // Initializing DataTable with your specific requirements
     var table = $('#queuesTable').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
-        dom: 
-            // top (search removed since you already have buttons outside)
-            '<"top d-flex justify-content-between align-items-center mb-2"lf>rt' +
-            // bottom with pagination aligned right
-            '<"bottom d-flex justify-content-between align-items-center"ip>',
+        order: [],
+        dom: '<"top d-flex justify-content-between align-items-center mb-2"lf>rt<"bottom d-flex justify-content-between align-items-center"ip>', 
         buttons: [
             {
-                extend: 'csvHtml5',
-                title: 'All Queues',
+                extend: 'csv',
+                title: 'Queues',
                 exportOptions: { columns: ':visible' }
             },
             {
-                extend: 'excelHtml5',
-                title: 'All Queues',
+                extend: 'excel',
+                title: 'Queues',
                 exportOptions: { columns: ':visible' }
             },
             {
                 extend: 'print',
-                title: 'All Queues',
+                title: 'Queues',
                 exportOptions: { columns: ':visible' }
             }
         ]
     });
 
-    // External buttons
+    // Binding your specific IDs to the DataTable buttons
     $('#exportCsv').on('click', function() {
         table.button(0).trigger();
     });

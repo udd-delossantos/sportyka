@@ -1,145 +1,125 @@
 @extends('layouts.staff.app')
+@section('title', 'Add to Queue')
 
 @section('content')
 <div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Add Customer to Queue</h1>
+        <a href="{{ route('staff.queues.index') }}" class="btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50 mr-2"></i> Back to Queue List
+        </a>
+    </div>
+
     <form action="{{ route('staff.queues.store') }}" method="POST">
         @csrf
         <div class="row">
-            <div class="col-md-7">
-                <div class="card shadow mb-4">
-                        <div class="card-header pb-0">
-                            <h5><strong>Add Customer to Queue</strong></h5>
-                        </div>
-                        <div class="card-body">
-                            @if(session('error'))
-                                <div class="alert alert-danger">{{ session('error') }}</div>
-                            @endif
-
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="mb-3">
-                                        <label>Court</label>
-                                        <select name="court_id" class="form-control" required id="courtSelect">
-                                            @foreach($courts as $court)
-                                                <option value="{{ $court->id }}" data-rate="{{ $court->hourly_rate }}">
-                                                    {{ $court->name }} (₱{{ $court->hourly_rate }}/hr)
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="mb-3">
-                                        <label>Customer Name</label>
-                                        <input type="text" name="customer_name" class="form-control" required value="{{ old('customer_name') }}">
-                                    </div>
-                                </div>
+            <div class="col-lg-7">
+                <div class="card shadow mb-4 border-left-primary">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Queue Details</h6>
+                    </div>
+                    <div class="card-body">
+                        @if(session('error'))
+                            <div class="alert alert-danger border-left-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('error') }}
                             </div>
+                        @endif
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="hours">Hours</label>
-                                    <select name="hours" class="form-control" required>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="minutes">Minutes</label>
-                                    <select name="minutes" class="form-control" required>
-                                        <option value="0">0</option>
-                                        <option value="30">30</option>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold text-gray-700">Select Court</label>
+                                    <select name="court_id" class="form-control" required id="courtSelect">
+                                        @foreach($courts as $court)
+                                            <option value="{{ $court->id }}" data-rate="{{ $court->hourly_rate }}">
+                                                {{ $court->name }} (₱{{ number_format($court->hourly_rate, 2) }}/hr)
+                                            </option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
-
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="mb-3">
-                                        <label>Start Time</label>
-                                        <input type="time" name="start_time" class="form-control" required value="{{ old('start_time') }}">
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="mb-3">
-                                        <label>End Time</label>
-                                        <input type="time" name="end_time" class="form-control" required value="{{ old('end_time') }}" readonly>
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="font-weight-bold text-gray-700">Customer Name</label>
+                                    <input type="text" name="customer_name" class="form-control" required value="{{ old('customer_name') }}" placeholder="Enter name...">
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                    <label>GCash Ref No. (Leave blank if cash)</label>
-                                    <input
-                                        type="text"
-                                        name="transaction_no"
-                                        id="transaction_no"
-                                        class="form-control"
-                                        maxlength="13"
-                                        inputmode="numeric"
-                                        pattern="\d{13}"
-                                        placeholder="13-digit GCash Ref No."
-                                        value="{{ old('transaction_no') }}"
-                                    >
-                                    <div class="invalid-feedback">
-                                        Please enter exactly 13 digits (numbers only).
-                                    </div>
-                                </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold text-gray-700">Duration (Hours)</label>
+                                <select name="hours" class="form-control">
+                                    @for($i=1; $i<=5; $i++) <option value="{{ $i }}">{{ $i }} Hour{{ $i > 1 ? 's' : '' }}</option> @endfor
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold text-gray-700">Duration (Minutes)</label>
+                                <select name="minutes" class="form-control">
+                                    <option value="0">0 Minutes</option>
+                                    <option value="30">30 Minutes</option>
+                                </select>
+                            </div>
+                        </div>
 
-                                </div>
-                                
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold text-gray-700">Start Time</label>
+                                <input type="time" name="start_time" id="start_time" class="form-control" required value="{{ old('start_time') }}">
+                                <small class="text-muted">Calculated based on current queue end time.</small>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="font-weight-bold text-gray-700">Expected End Time</label>
+                                <input type="time" name="end_time" id="end_time" class="form-control bg-light" required readonly>
+                            </div>
+                        </div>
 
-                                <div class="col-sm-6">
-                                    <div class="mb-3">
-                                        <label>50% Down Payment</label>
-                                        <input type="text" id="computedAmount" class="form-control" readonly>
-                                    </div>
+                        <hr class="sidebar-divider">
+
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label class="font-weight-bold text-gray-700">GCash Ref No. (Optional)</label>
+                                    <input type="text" name="transaction_no" id="transaction_no" class="form-control" maxlength="13" placeholder="13-digit reference number">
+                                    <div class="invalid-feedback">Please enter exactly 13 digits.</div>
                                 </div>
                             </div>
-
+                            <div class="col-md-5">
+                                <div class="alert alert-secondary text-center mb-0 py-2">
+                                    <span class="small font-weight-bold text-gray-600">50% Downpayment</span>
+                                    <h4 class="font-weight-bold text-success mb-0" id="computedAmount">₱0.00</h4>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-footer">
-                            <button type="submit" class="btn btn-success btn-sm">Add to Queue</button>
-                            <a href="{{ route('staff.queues.index') }}" class="btn btn-secondary btn-sm">Back</a>
-                        </div>
-                    </div>
 
-            </div>
-            <div class="col-md-5">
-                        <div class="card mb-4 shadow" id="queueContainer" style="display:none;">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><strong>Queue – Waiting Customers</strong></h5>
-                        <small class="text-muted" id="queueCourtBadge" style="display:none;"></small>
-                    </div>
-                    <div class="card-body" id="queueList">
-                        <p class="text-muted mb-0">Select a court to view waiting customers.</p>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg mt-4 shadow-sm">
+                            <i class="fas fa-plus-circle mr-2"></i> Add to Queue
+                        </button>
                     </div>
                 </div>
-                <!-- Booked slots card -->
-                <div class="card mb-4 shadow" id="bookedContainer" style="display:none;">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><strong>Booked Slots</strong></h5>
-                        <small class="text-muted" id="bookedCourtBadge" style="display:none;"></small>
-                    </div>
-                    <div class="card-body" id="bookedList">
-                        <p class="text-muted mb-0">Select a court to view booked slots.</p>
-                    </div>
-                </div>
-
-
             </div>
 
+            <div class="col-lg-5">
+                <div class="card shadow mb-4 border-left-warning" id="queueContainer" style="display:none;">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-warning">Current Queue</h6>
+                        <span class="badge badge-light" id="queueCourtBadge"></span>
+                    </div>
+                    <div class="card-body p-2" style="max-height: 250px; overflow-y: auto;" id="queueList">
+                        </div>
+                </div>
+
+                <div class="card shadow mb-4 border-left-info" id="bookedContainer" style="display:none;">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-info">Booked Today</h6>
+                        <span class="badge badge-light" id="bookedCourtBadge"></span>
+                    </div>
+                    <div class="card-body p-2" style="max-height: 250px; overflow-y: auto;" id="bookedList">
+                        </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Queue display card -->
-      
-
-        
     </form>
 </div>
 @endsection
@@ -147,267 +127,211 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // ====== Data from controller ======
     const queuesByCourt = @json($queuesByCourt);
-    const ongoingByCourt = @json($ongoingByCourt ?? []); // ✅ added, safe even if empty
+    const ongoingByCourt = @json($ongoingByCourt ?? []);
     const bookedByCourt = @json($bookedByCourt ?? []);
 
-
-    // ====== DOM elements ======
     const courtSelect = document.getElementById('courtSelect');
+    const startTimeInput = document.getElementById('start_time');
+    const endTimeInput = document.getElementById('end_time');
+    const hoursSelect = document.querySelector('select[name="hours"]');
+    const minutesSelect = document.querySelector('select[name="minutes"]');
+    const amountDisplay = document.getElementById('computedAmount');
+
     const queueContainer = document.getElementById('queueContainer');
     const queueList = document.getElementById('queueList');
     const queueCourtBadge = document.getElementById('queueCourtBadge');
 
-    const hoursInput = document.querySelector('select[name="hours"]');
-    const minutesInput = document.querySelector('select[name="minutes"]');
-    const startTimeInput = document.querySelector('input[name="start_time"]');
-    const endTimeInput = document.querySelector('input[name="end_time"]');
-    const computedAmount = document.getElementById('computedAmount');
-
     const bookedContainer = document.getElementById('bookedContainer');
-const bookedList = document.getElementById('bookedList');
-const bookedCourtBadge = document.getElementById('bookedCourtBadge');
+    const bookedList = document.getElementById('bookedList');
+    const bookedCourtBadge = document.getElementById('bookedCourtBadge');
 
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, s => ({
+            '&':'&amp;',
+            '<':'&lt;',
+            '>':'&gt;',
+            '"':'&quot;',
+            "'":'&#039;'
+        }[s]));
+    }
 
-    function getCurrentTime() {
-        const now = new Date();
-        return now.getHours() * 60 + now.getMinutes();
+    function ampmTo24(timeStr) {
+        if (!timeStr) return null;
+        const [time, modifier] = timeStr.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (hours === '12') hours = '00';
+        if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+        return `${String(hours).padStart(2, '0')}:${minutes}`;
     }
 
     function timeToMinutes(time) {
-        if (!time) return null;
         const [h, m] = time.split(':').map(Number);
         return (h * 60) + m;
     }
 
     function minutesToTime(mins) {
-        const h = Math.floor(mins / 60);
+        const h = Math.floor(mins / 60) % 24;
         const m = mins % 60;
         return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
     }
 
-    function ampmTo24(time) {
-        if (!time) return null;
-        const match = time.match(/(\d+):(\d+)\s?(AM|PM)/i);
-        if (!match) return null;
-
-        let h = parseInt(match[1]);
-        const m = match[2];
-        const mer = match[3].toUpperCase();
-
-        if (mer === 'PM' && h !== 12) h += 12;
-        if (mer === 'AM' && h === 12) h = 0;
-
-        return `${String(h).padStart(2,'0')}:${m}`;
-    }
-
-    function enforceFutureTime() {
-        const selectedMinutes = timeToMinutes(startTimeInput.value);
-        const nowMinutes = getCurrentTime();
-
-        if (selectedMinutes !== null && selectedMinutes < nowMinutes) {
-            alert('You cannot select a past time.');
-            startTimeInput.value = '';
-            endTimeInput.value = '';
-            return;
-        }
-
-        updateEndTime();
-    }
-
-    function computeAmount() {
-        const hours = parseInt(hoursInput.value) || 0;
-        const minutes = parseInt(minutesInput.value) || 0;
-        const selectedCourt = courtSelect.options[courtSelect.selectedIndex];
-        const rate = parseFloat(selectedCourt.getAttribute('data-rate'));
-
-        if (isNaN(rate)) return computedAmount.value = '';
-
-        const totalMinutes = (hours * 60) + minutes;
-        if (totalMinutes <= 0) return computedAmount.value = '';
-
-        const total = (rate / 60) * totalMinutes * 0.5;
-        computedAmount.value = '₱' + total.toFixed(2);
-    }
-
-    function updateEndTime() {
-        if (!startTimeInput.value) return;
-
-        let [h, m] = startTimeInput.value.split(':').map(Number);
-        let d = new Date();
-        d.setHours(h, m, 0);
-        d.setMinutes(d.getMinutes() + (hoursInput.value * 60) + parseInt(minutesInput.value));
-
-        endTimeInput.value = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-    }
-
-    function escapeHtml(str) {
-        return String(str).replace(/[&<>"']/g, s => ({
-            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
-        }[s]));
-    }
-
-    function renderQueue() {
+    function updateLogic() {
         const courtId = courtSelect.value;
-        const courtName = courtSelect.options[courtSelect.selectedIndex].text.split(' (')[0];
 
-        queueCourtBadge.textContent = `for ${courtName}`;
-        queueCourtBadge.style.display = 'inline-block';
-        queueContainer.style.display = 'block';
+        renderCards();
+        autoFillTime(courtId);
+        calculateAll();
+    }
 
-        queueList.innerHTML = '';
+    function autoFillTime(courtId) {
+        let now = new Date();
+        let currentMins = (now.getHours() * 60) + now.getMinutes();
+        let lastMins = currentMins;
 
         if (ongoingByCourt[courtId]) {
-            const ongoing = document.createElement('div');
-            ongoing.className = 'alert alert-success mb-3';
-            ongoing.innerHTML = `
-                <strong>Ongoing Session</strong>
-                — Ends at: <strong>${escapeHtml(ongoingByCourt[courtId].end_time)}</strong>
-            `;
-            queueList.appendChild(ongoing);
+            let end24 = ampmTo24(ongoingByCourt[courtId].end_time);
+            lastMins = Math.max(lastMins, timeToMinutes(end24));
         }
 
         const waiting = queuesByCourt[courtId] || [];
-        if (waiting.length === 0) {
-            queueList.innerHTML += `<p class="text-success mb-0">No waiting customers.</p>`;
-            return;
+        if (waiting.length > 0) {
+            let lastQueueEnd = ampmTo24(waiting[waiting.length - 1].end_time);
+            lastMins = Math.max(lastMins, timeToMinutes(lastQueueEnd));
         }
 
-        waiting.forEach(q => {
-            const div = document.createElement('div');
-            div.className = 'alert alert-warning py-2 mb-2';
-            div.innerHTML = `<strong>${escapeHtml(q.customer)}</strong>
-                             <span class="text-muted"> — ${escapeHtml(q.start_time)} to ${escapeHtml(q.end_time)}</span>`;
-            queueList.appendChild(div);
-        });
+        startTimeInput.value = minutesToTime(lastMins);
     }
 
-    /* ================================
-       ✅ AUTO-FILL START TIME (ADD ONLY)
-    ================================= */
-    function autoFillStartTime() {
-        const courtId = courtSelect.value;
-        let candidates = [];
+    function calculateAll() {
+        if (!startTimeInput.value) return;
 
-        if (ongoingByCourt[courtId]) {
-            const t = ampmTo24(ongoingByCourt[courtId].end_time);
-            if (t) candidates.push(timeToMinutes(t));
-        }
+        let startMins = timeToMinutes(startTimeInput.value);
+        let durationMins = (parseInt(hoursSelect.value) * 60) + parseInt(minutesSelect.value);
+        endTimeInput.value = minutesToTime(startMins + durationMins);
 
-        if (queuesByCourt[courtId]?.length) {
-            const lastQueue = queuesByCourt[courtId][queuesByCourt[courtId].length - 1];
-            const t = ampmTo24(lastQueue.end_time);
-            if (t) candidates.push(timeToMinutes(t));
-        }
+        const rate = parseFloat(courtSelect.options[courtSelect.selectedIndex].dataset.rate);
+        const total = (rate / 60) * durationMins;
 
-        candidates.push(getCurrentTime());
-
-        const finalMinutes = Math.max(...candidates);
-        startTimeInput.value = minutesToTime(finalMinutes);
-
-        startTimeInput.dispatchEvent(new Event('input'));
+        amountDisplay.textContent = '₱' + total.toLocaleString('en-US', { minimumFractionDigits: 2 });
     }
 
-    /* ====== EXISTING LISTENERS ====== */
-    courtSelect.addEventListener('change', () => {
-        computeAmount();
-        renderQueue();
-            renderBookedSlots(); // ✅ ADD
-
-        autoFillStartTime(); // ✅ added
-    });
-
-    [hoursInput, minutesInput].forEach(i =>
-        i.addEventListener('change', () => { computeAmount(); updateEndTime(); })
-    );
-
-    startTimeInput.addEventListener('change', enforceFutureTime);
-    startTimeInput.addEventListener('input', enforceFutureTime);
-
-
-    function renderBookedSlots() {
+    /* =====================
+       COPIED LIST LOGIC
+    ====================== */
+    function renderCards() {
     const courtId = courtSelect.value;
     const courtName = courtSelect.options[courtSelect.selectedIndex].text.split(' (')[0];
 
-    bookedCourtBadge.textContent = `for ${courtName}`;
-    bookedCourtBadge.style.display = 'inline-block';
-    bookedContainer.style.display = 'block';
+    /* ===== QUEUE (WITH ONGOING) ===== */
+    queueContainer.style.display = 'flex';
+    queueContainer.classList.remove('d-none');
+    queueCourtBadge.style.display = 'inline-block';
+    queueCourtBadge.textContent = `${courtName}`;
+    queueList.innerHTML = '';
 
+    /* ---- ONGOING SESSION ---- */
+    if (ongoingByCourt[courtId]) {
+        queueList.innerHTML += `
+            <div class="card mb-2 shadow-sm">
+                <div class="card-body p-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="font-weight-bold text-gray-800">
+                            ${escapeHtml(ongoingByCourt[courtId].customer ?? 'Ongoing Session')}
+                        </div>
+                        <span class="badge badge-success">Ongoing</span>
+                    </div>
+                    <div class="small text-gray-600 mt-1">
+                        <i class="far fa-clock mr-1"></i>
+                        Ends at: ${ongoingByCourt[courtId].end_time}
+                    </div>
+                </div>
+            </div>
+            <hr></hr>
+        `;
+    }
+
+    /* ---- WAITING QUEUE ---- */
+    const waiting = queuesByCourt[courtId] || [];
+    if (!waiting.length) {
+        queueList.innerHTML += `
+            <div class="text-center py-4 text-gray-500">
+                <i class="fas fa-check-circle text-gray mb-2"></i><br>
+                No waiting customers.
+            </div>
+        `;
+    } else {
+        waiting.forEach(q => {
+            queueList.innerHTML += `
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="font-weight-bold text-gray-800">
+                                ${escapeHtml(q.customer)}
+                            </div>
+                            <span class="badge badge-warning text-white">Waiting</span>
+                        </div>
+                        <div class="small text-gray-600 mt-1">
+                            <i class="far fa-clock mr-1"></i>
+                            ${q.start_time} - ${q.end_time}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    /* ===== BOOKED ===== */
+    bookedContainer.style.display = 'flex';
+    bookedContainer.classList.remove('d-none');
+    bookedCourtBadge.style.display = 'inline-block';
+    bookedCourtBadge.textContent = `${courtName}`;
     bookedList.innerHTML = '';
 
     const booked = bookedByCourt[courtId] || [];
-
-    if (booked.length === 0) {
-        bookedList.innerHTML = `<p class="text-success mb-0">No booked slots.</p>`;
-        return;
-    }
-
-    booked.forEach(b => {
-        const div = document.createElement('div');
-        div.className = 'alert alert-warning py-2 mb-2';
-        div.innerHTML = `
-            <strong>${escapeHtml(b.customer)}</strong>
-            <span class="text-muted"> — ${escapeHtml(b.start_time)} to ${escapeHtml(b.end_time)}</span>
+    if (!booked.length) {
+        bookedList.innerHTML = `
+            <div class="text-center py-4 text-gray-500">
+                <i class="fas fa-calendar-check text-gray mb-2"></i><br>
+                No booked slots for today.
+            </div>
         `;
-        bookedList.appendChild(div);
-    });
+    } else {
+        booked.forEach(b => {
+            bookedList.innerHTML += `
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="font-weight-bold text-gray-800">
+                                ${escapeHtml(b.customer)}
+                            </div>
+                            <span class="badge badge-success">Confirmed</span>
+                        </div>
+                        <div class="small text-gray-600 mt-1">
+                            <i class="far fa-clock mr-1"></i>
+                            ${b.start_time} - ${b.end_time}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
 }
 
 
-    /* ====== INITIAL RUN ====== */
-    computeAmount();
-    renderQueue();
-    autoFillStartTime(); // ✅ added
-    renderBookedSlots();
+    // Listeners
+    courtSelect.addEventListener('change', updateLogic);
+    startTimeInput.addEventListener('input', calculateAll);
+    [hoursSelect, minutesSelect].forEach(el => el.addEventListener('change', calculateAll));
 
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const transactionInput = document.getElementById('transaction_no');
-    if (!transactionInput) return;
-
-    // Block letters & symbols while typing
-    transactionInput.addEventListener('keydown', function (e) {
-        const allowedKeys = [
-            'Backspace','Delete','ArrowLeft','ArrowRight',
-            'Tab','Home','End'
-        ];
-
-        if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) return;
-
-        // allow digits only
-        if (!/^\d$/.test(e.key)) {
-            e.preventDefault();
-            return;
-        }
-
-        // max 13 digits
-        if (transactionInput.value.length >= 13) {
-            e.preventDefault();
-        }
+    // GCash Validation
+    const txInput = document.getElementById('transaction_no');
+    txInput.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 13);
+        this.classList.toggle('is-invalid', this.value.length > 0 && this.value.length < 13);
     });
 
-    // Sanitize pasted / mobile input
-    transactionInput.addEventListener('input', function () {
-        transactionInput.value = transactionInput.value
-            .replace(/\D/g, '')
-            .slice(0, 13);
-    });
-
-    // Optional strict validation on submit
-    const form = transactionInput.closest('form');
-    if (form) {
-        form.addEventListener('submit', function (e) {
-            if (transactionInput.value && transactionInput.value.length !== 13) {
-                e.preventDefault();
-                transactionInput.classList.add('is-invalid');
-                transactionInput.focus();
-            } else {
-                transactionInput.classList.remove('is-invalid');
-            }
-        });
-    }
+    updateLogic();
 });
 </script>
 @endpush
